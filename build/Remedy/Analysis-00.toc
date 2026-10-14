@@ -1,0 +1,2040 @@
+(['C:\\Programming\\Noisewater Labs\\Remedy\\main.py'],
+ ['C:\\Programming\\Noisewater Labs\\Remedy'],
+ ['remedy',
+  'remedy.app',
+  'remedy.core',
+  'remedy.core.appstore',
+  'remedy.core.junk',
+  'remedy.core.maintenance',
+  'remedy.core.programs',
+  'remedy.core.registry',
+  'remedy.core.scanner',
+  'remedy.core.services',
+  'remedy.core.startup',
+  'remedy.core.sysinfo',
+  'remedy.core.tweaks',
+  'remedy.core.utils',
+  'remedy.single_instance',
+  'remedy.theme',
+  'remedy.ui',
+  'remedy.ui.pages_apps',
+  'remedy.ui.pages_clean',
+  'remedy.ui.pages_optimize',
+  'remedy.ui.pages_system',
+  'remedy.ui.splash',
+  'remedy.ui.widgets'],
+ [('C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks',
+   -1000),
+  ('C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\_pyinstaller_hooks_contrib',
+   -1000)],
+ {},
+ [],
+ [],
+ False,
+ {},
+ 0,
+ [],
+ [],
+ '3.9.13 (tags/v3.9.13:6de2ca5, May 17 2022, 16:36:42) [MSC v.1929 64 bit '
+ '(AMD64)]',
+ [('pyi_rth_pyside6',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pyside6.py',
+   'PYSOURCE'),
+  ('pyi_rth_inspect',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py',
+   'PYSOURCE'),
+  ('main', 'C:\\Programming\\Noisewater Labs\\Remedy\\main.py', 'PYSOURCE')],
+ [('zipfile',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\zipfile.py',
+   'PYMODULE'),
+  ('argparse',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\argparse.py',
+   'PYMODULE'),
+  ('textwrap',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\textwrap.py',
+   'PYMODULE'),
+  ('copy',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\copy.py',
+   'PYMODULE'),
+  ('gettext',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\gettext.py',
+   'PYMODULE'),
+  ('py_compile',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\py_compile.py',
+   'PYMODULE'),
+  ('importlib.machinery',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\importlib\\machinery.py',
+   'PYMODULE'),
+  ('importlib',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\importlib\\__init__.py',
+   'PYMODULE'),
+  ('importlib._bootstrap',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\importlib\\_bootstrap.py',
+   'PYMODULE'),
+  ('importlib._bootstrap_external',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\importlib\\_bootstrap_external.py',
+   'PYMODULE'),
+  ('importlib.metadata',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\importlib\\metadata.py',
+   'PYMODULE'),
+  ('importlib.abc',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\importlib\\abc.py',
+   'PYMODULE'),
+  ('typing',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\typing.py',
+   'PYMODULE'),
+  ('configparser',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\configparser.py',
+   'PYMODULE'),
+  ('pathlib',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\pathlib.py',
+   'PYMODULE'),
+  ('urllib.parse',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\urllib\\parse.py',
+   'PYMODULE'),
+  ('urllib',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\urllib\\__init__.py',
+   'PYMODULE'),
+  ('fnmatch',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\fnmatch.py',
+   'PYMODULE'),
+  ('email',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\__init__.py',
+   'PYMODULE'),
+  ('email.parser',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\parser.py',
+   'PYMODULE'),
+  ('email._policybase',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\_policybase.py',
+   'PYMODULE'),
+  ('email.utils',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\utils.py',
+   'PYMODULE'),
+  ('email._parseaddr',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\_parseaddr.py',
+   'PYMODULE'),
+  ('calendar',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\calendar.py',
+   'PYMODULE'),
+  ('datetime',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\datetime.py',
+   'PYMODULE'),
+  ('_strptime',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\_strptime.py',
+   'PYMODULE'),
+  ('socket',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\socket.py',
+   'PYMODULE'),
+  ('selectors',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\selectors.py',
+   'PYMODULE'),
+  ('random',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\random.py',
+   'PYMODULE'),
+  ('statistics',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\statistics.py',
+   'PYMODULE'),
+  ('decimal',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\decimal.py',
+   'PYMODULE'),
+  ('_pydecimal',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\_pydecimal.py',
+   'PYMODULE'),
+  ('contextvars',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\contextvars.py',
+   'PYMODULE'),
+  ('fractions',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\fractions.py',
+   'PYMODULE'),
+  ('numbers',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\numbers.py',
+   'PYMODULE'),
+  ('hashlib',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\hashlib.py',
+   'PYMODULE'),
+  ('logging',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\logging\\__init__.py',
+   'PYMODULE'),
+  ('pickle',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\pickle.py',
+   'PYMODULE'),
+  ('pprint',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\pprint.py',
+   'PYMODULE'),
+  ('_compat_pickle',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\_compat_pickle.py',
+   'PYMODULE'),
+  ('string',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\string.py',
+   'PYMODULE'),
+  ('bisect',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\bisect.py',
+   'PYMODULE'),
+  ('email.feedparser',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\feedparser.py',
+   'PYMODULE'),
+  ('email.message',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\message.py',
+   'PYMODULE'),
+  ('email.policy',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\policy.py',
+   'PYMODULE'),
+  ('email.contentmanager',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\contentmanager.py',
+   'PYMODULE'),
+  ('email.quoprimime',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\quoprimime.py',
+   'PYMODULE'),
+  ('email.headerregistry',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\headerregistry.py',
+   'PYMODULE'),
+  ('email.iterators',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\iterators.py',
+   'PYMODULE'),
+  ('email.generator',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\generator.py',
+   'PYMODULE'),
+  ('email._encoded_words',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\_encoded_words.py',
+   'PYMODULE'),
+  ('base64',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\base64.py',
+   'PYMODULE'),
+  ('getopt',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\getopt.py',
+   'PYMODULE'),
+  ('quopri',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\quopri.py',
+   'PYMODULE'),
+  ('uu',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\uu.py',
+   'PYMODULE'),
+  ('optparse',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\optparse.py',
+   'PYMODULE'),
+  ('email._header_value_parser',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\_header_value_parser.py',
+   'PYMODULE'),
+  ('email.header',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\header.py',
+   'PYMODULE'),
+  ('email.base64mime',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\base64mime.py',
+   'PYMODULE'),
+  ('email.charset',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\charset.py',
+   'PYMODULE'),
+  ('email.encoders',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\encoders.py',
+   'PYMODULE'),
+  ('email.errors',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\email\\errors.py',
+   'PYMODULE'),
+  ('csv',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\csv.py',
+   'PYMODULE'),
+  ('tokenize',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\tokenize.py',
+   'PYMODULE'),
+  ('token',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\token.py',
+   'PYMODULE'),
+  ('lzma',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\lzma.py',
+   'PYMODULE'),
+  ('_compression',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\_compression.py',
+   'PYMODULE'),
+  ('bz2',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\bz2.py',
+   'PYMODULE'),
+  ('contextlib',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\contextlib.py',
+   'PYMODULE'),
+  ('threading',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\threading.py',
+   'PYMODULE'),
+  ('_threading_local',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\_threading_local.py',
+   'PYMODULE'),
+  ('struct',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\struct.py',
+   'PYMODULE'),
+  ('shutil',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\shutil.py',
+   'PYMODULE'),
+  ('tarfile',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\tarfile.py',
+   'PYMODULE'),
+  ('gzip',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\gzip.py',
+   'PYMODULE'),
+  ('importlib.util',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\importlib\\util.py',
+   'PYMODULE'),
+  ('inspect',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\inspect.py',
+   'PYMODULE'),
+  ('dis',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\dis.py',
+   'PYMODULE'),
+  ('opcode',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\opcode.py',
+   'PYMODULE'),
+  ('ast',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ast.py',
+   'PYMODULE'),
+  ('_pyi_rth_utils.qt',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PyInstaller\\fake-modules\\_pyi_rth_utils\\qt.py',
+   'PYMODULE'),
+  ('_pyi_rth_utils',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PyInstaller\\fake-modules\\_pyi_rth_utils\\__init__.py',
+   'PYMODULE'),
+  ('remedy.ui.widgets',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\ui\\widgets.py',
+   'PYMODULE'),
+  ('shiboken6',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\shiboken6\\__init__.py',
+   'PYMODULE'),
+  ('tempfile',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\tempfile.py',
+   'PYMODULE'),
+  ('PySide6',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\__init__.py',
+   'PYMODULE'),
+  ('__future__',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\__future__.py',
+   'PYMODULE'),
+  ('remedy.ui.splash',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\ui\\splash.py',
+   'PYMODULE'),
+  ('remedy.ui.pages_system',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\ui\\pages_system.py',
+   'PYMODULE'),
+  ('subprocess',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\subprocess.py',
+   'PYMODULE'),
+  ('signal',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\signal.py',
+   'PYMODULE'),
+  ('psutil',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\psutil\\__init__.py',
+   'PYMODULE'),
+  ('psutil._pswindows',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\psutil\\_pswindows.py',
+   'PYMODULE'),
+  ('psutil._common',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\psutil\\_common.py',
+   'PYMODULE'),
+  ('ctypes',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ctypes\\__init__.py',
+   'PYMODULE'),
+  ('ctypes._endian',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ctypes\\_endian.py',
+   'PYMODULE'),
+  ('ipaddress',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ipaddress.py',
+   'PYMODULE'),
+  ('psutil._ntuples',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\psutil\\_ntuples.py',
+   'PYMODULE'),
+  ('remedy.ui.pages_optimize',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\ui\\pages_optimize.py',
+   'PYMODULE'),
+  ('remedy.ui.pages_clean',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\ui\\pages_clean.py',
+   'PYMODULE'),
+  ('remedy.ui.pages_apps',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\ui\\pages_apps.py',
+   'PYMODULE'),
+  ('remedy.ui',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\ui\\__init__.py',
+   'PYMODULE'),
+  ('remedy.theme',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\theme.py',
+   'PYMODULE'),
+  ('remedy.single_instance',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\single_instance.py',
+   'PYMODULE'),
+  ('getpass',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\getpass.py',
+   'PYMODULE'),
+  ('remedy.core.utils',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\utils.py',
+   'PYMODULE'),
+  ('send2trash',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\__init__.py',
+   'PYMODULE'),
+  ('send2trash.plat_other',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\plat_other.py',
+   'PYMODULE'),
+  ('send2trash.util',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\util.py',
+   'PYMODULE'),
+  ('send2trash.plat_gio',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\plat_gio.py',
+   'PYMODULE'),
+  ('send2trash.win',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\win\\__init__.py',
+   'PYMODULE'),
+  ('send2trash.win.legacy',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\win\\legacy.py',
+   'PYMODULE'),
+  ('ctypes.wintypes',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ctypes\\wintypes.py',
+   'PYMODULE'),
+  ('send2trash.win.modern',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\win\\modern.py',
+   'PYMODULE'),
+  ('send2trash.win.IFileOperationProgressSink',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\win\\IFileOperationProgressSink.py',
+   'PYMODULE'),
+  ('platform',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\platform.py',
+   'PYMODULE'),
+  ('send2trash.mac',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\mac\\__init__.py',
+   'PYMODULE'),
+  ('send2trash.mac.legacy',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\mac\\legacy.py',
+   'PYMODULE'),
+  ('ctypes.util',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ctypes\\util.py',
+   'PYMODULE'),
+  ('ctypes._aix',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ctypes\\_aix.py',
+   'PYMODULE'),
+  ('ctypes.macholib.dyld',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ctypes\\macholib\\dyld.py',
+   'PYMODULE'),
+  ('ctypes.macholib',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ctypes\\macholib\\__init__.py',
+   'PYMODULE'),
+  ('ctypes.macholib.dylib',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ctypes\\macholib\\dylib.py',
+   'PYMODULE'),
+  ('ctypes.macholib.framework',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ctypes\\macholib\\framework.py',
+   'PYMODULE'),
+  ('send2trash.mac.modern',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\mac\\modern.py',
+   'PYMODULE'),
+  ('send2trash.exceptions',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\send2trash\\exceptions.py',
+   'PYMODULE'),
+  ('dataclasses',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\dataclasses.py',
+   'PYMODULE'),
+  ('logging.handlers',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\logging\\handlers.py',
+   'PYMODULE'),
+  ('http.client',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\http\\client.py',
+   'PYMODULE'),
+  ('ssl',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ssl.py',
+   'PYMODULE'),
+  ('http',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\http\\__init__.py',
+   'PYMODULE'),
+  ('smtplib',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\smtplib.py',
+   'PYMODULE'),
+  ('hmac',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\hmac.py',
+   'PYMODULE'),
+  ('queue',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\queue.py',
+   'PYMODULE'),
+  ('json',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\json\\__init__.py',
+   'PYMODULE'),
+  ('json.encoder',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\json\\encoder.py',
+   'PYMODULE'),
+  ('json.decoder',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\json\\decoder.py',
+   'PYMODULE'),
+  ('json.scanner',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\json\\scanner.py',
+   'PYMODULE'),
+  ('remedy.core.tweaks',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\tweaks.py',
+   'PYMODULE'),
+  ('remedy.core.sysinfo',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\sysinfo.py',
+   'PYMODULE'),
+  ('remedy.core.startup',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\startup.py',
+   'PYMODULE'),
+  ('remedy.core.services',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\services.py',
+   'PYMODULE'),
+  ('remedy.core.scanner',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\scanner.py',
+   'PYMODULE'),
+  ('remedy.core.registry',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\registry.py',
+   'PYMODULE'),
+  ('remedy.core.programs',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\programs.py',
+   'PYMODULE'),
+  ('remedy.core.maintenance',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\maintenance.py',
+   'PYMODULE'),
+  ('remedy.core.junk',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\junk.py',
+   'PYMODULE'),
+  ('glob',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\glob.py',
+   'PYMODULE'),
+  ('remedy.core.appstore',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\appstore.py',
+   'PYMODULE'),
+  ('remedy.core',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\core\\__init__.py',
+   'PYMODULE'),
+  ('remedy',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\__init__.py',
+   'PYMODULE'),
+  ('stringprep',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\stringprep.py',
+   'PYMODULE'),
+  ('tracemalloc',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\tracemalloc.py',
+   'PYMODULE'),
+  ('_py_abc',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\_py_abc.py',
+   'PYMODULE'),
+  ('remedy.app',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\remedy\\app.py',
+   'PYMODULE')],
+ [('python39.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\python39.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\styles\\qmodernwindowsstyle.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\styles\\qmodernwindowsstyle.dll',
+   'BINARY'),
+  ('PySide6\\opengl32sw.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\PySide6\\opengl32sw.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\tls\\qopensslbackend.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\tls\\qopensslbackend.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\tls\\qschannelbackend.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\tls\\qschannelbackend.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\networkinformation\\qnetworklistmanager.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\networkinformation\\qnetworklistmanager.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\tls\\qcertonlybackend.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\tls\\qcertonlybackend.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\imageformats\\qwebp.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\imageformats\\qwebp.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\iconengines\\qsvgicon.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\iconengines\\qsvgicon.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\imageformats\\qtga.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\imageformats\\qtga.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\imageformats\\qsvg.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\imageformats\\qsvg.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\imageformats\\qicns.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\imageformats\\qicns.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\imageformats\\qwbmp.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\imageformats\\qwbmp.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\generic\\qtuiotouchplugin.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\generic\\qtuiotouchplugin.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\platforms\\qoffscreen.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\platforms\\qoffscreen.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\imageformats\\qgif.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\imageformats\\qgif.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\platforms\\qminimal.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\platforms\\qminimal.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\imageformats\\qico.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\imageformats\\qico.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\platforms\\qdirect2d.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\platforms\\qdirect2d.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\imageformats\\qtiff.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\imageformats\\qtiff.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\platforms\\qwindows.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\platforms\\qwindows.dll',
+   'BINARY'),
+  ('PySide6\\plugins\\imageformats\\qjpeg.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\plugins\\imageformats\\qjpeg.dll',
+   'BINARY'),
+  ('unicodedata.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\unicodedata.pyd',
+   'EXTENSION'),
+  ('select.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\select.pyd',
+   'EXTENSION'),
+  ('_socket.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\_socket.pyd',
+   'EXTENSION'),
+  ('_decimal.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\_decimal.pyd',
+   'EXTENSION'),
+  ('_hashlib.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\_hashlib.pyd',
+   'EXTENSION'),
+  ('_lzma.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\_lzma.pyd',
+   'EXTENSION'),
+  ('_bz2.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\_bz2.pyd',
+   'EXTENSION'),
+  ('PySide6\\QtWidgets.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\QtWidgets.pyd',
+   'EXTENSION'),
+  ('shiboken6\\Shiboken.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\shiboken6\\Shiboken.pyd',
+   'EXTENSION'),
+  ('PySide6\\QtNetwork.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\QtNetwork.pyd',
+   'EXTENSION'),
+  ('PySide6\\QtGui.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\QtGui.pyd',
+   'EXTENSION'),
+  ('PySide6\\QtCore.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\QtCore.pyd',
+   'EXTENSION'),
+  ('psutil\\_psutil_windows.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\psutil\\_psutil_windows.pyd',
+   'EXTENSION'),
+  ('_ctypes.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\_ctypes.pyd',
+   'EXTENSION'),
+  ('_ssl.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\_ssl.pyd',
+   'EXTENSION'),
+  ('_queue.pyd',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\_queue.pyd',
+   'EXTENSION'),
+  ('api-ms-win-crt-filesystem-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-filesystem-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-math-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-math-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-convert-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-convert-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-string-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-string-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-time-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-time-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-conio-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-conio-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-process-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-process-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-locale-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-locale-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-stdio-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-stdio-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-environment-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-environment-l1-1-0.dll',
+   'BINARY'),
+  ('VCRUNTIME140.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\VCRUNTIME140.dll',
+   'BINARY'),
+  ('api-ms-win-crt-runtime-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-runtime-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-heap-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-heap-l1-1-0.dll',
+   'BINARY'),
+  ('PySide6\\Qt6Widgets.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\PySide6\\Qt6Widgets.dll',
+   'BINARY'),
+  ('PySide6\\Qt6Core.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\PySide6\\Qt6Core.dll',
+   'BINARY'),
+  ('PySide6\\Qt6Gui.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\PySide6\\Qt6Gui.dll',
+   'BINARY'),
+  ('shiboken6\\MSVCP140.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\shiboken6\\MSVCP140.dll',
+   'BINARY'),
+  ('VCRUNTIME140_1.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\VCRUNTIME140_1.dll',
+   'BINARY'),
+  ('PySide6\\Qt6Network.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\PySide6\\Qt6Network.dll',
+   'BINARY'),
+  ('api-ms-win-crt-utility-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-crt-utility-l1-1-0.dll',
+   'BINARY'),
+  ('PySide6\\Qt6Svg.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\PySide6\\Qt6Svg.dll',
+   'BINARY'),
+  ('libcrypto-1_1.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\libcrypto-1_1.dll',
+   'BINARY'),
+  ('shiboken6\\shiboken6.abi3.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\shiboken6\\shiboken6.abi3.dll',
+   'BINARY'),
+  ('PySide6\\pyside6.abi3.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\pyside6.abi3.dll',
+   'BINARY'),
+  ('python3.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\python3.dll',
+   'BINARY'),
+  ('PySide6\\VCRUNTIME140_1.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\VCRUNTIME140_1.dll',
+   'BINARY'),
+  ('PySide6\\MSVCP140.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\MSVCP140.dll',
+   'BINARY'),
+  ('PySide6\\VCRUNTIME140.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\VCRUNTIME140.dll',
+   'BINARY'),
+  ('shiboken6\\VCRUNTIME140.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\shiboken6\\VCRUNTIME140.dll',
+   'BINARY'),
+  ('shiboken6\\VCRUNTIME140_1.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\shiboken6\\VCRUNTIME140_1.dll',
+   'BINARY'),
+  ('PySide6\\MSVCP140_2.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\MSVCP140_2.dll',
+   'BINARY'),
+  ('libffi-7.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\libffi-7.dll',
+   'BINARY'),
+  ('libssl-1_1.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\DLLs\\libssl-1_1.dll',
+   'BINARY'),
+  ('ucrtbase.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\ucrtbase.dll',
+   'BINARY'),
+  ('PySide6\\MSVCP140_1.dll',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\Lib\\site-packages\\PySide6\\MSVCP140_1.dll',
+   'BINARY'),
+  ('api-ms-win-core-synch-l1-2-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-synch-l1-2-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processthreads-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-processthreads-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-fibers-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-fibers-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-string-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-string-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-handle-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-handle-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-timezone-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-timezone-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-interlocked-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-interlocked-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-file-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processthreads-l1-1-1.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-processthreads-l1-1-1.dll',
+   'BINARY'),
+  ('api-ms-win-core-namedpipe-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-namedpipe-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-localization-l1-2-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-localization-l1-2-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-util-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-util-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-profile-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-profile-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-datetime-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-datetime-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-sysinfo-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-sysinfo-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l2-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-file-l2-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-errorhandling-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-errorhandling-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-heap-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-heap-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-console-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-console-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-libraryloader-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-libraryloader-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-debug-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-debug-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-rtlsupport-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-rtlsupport-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-synch-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-synch-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-memory-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-memory-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processenvironment-l1-1-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-processenvironment-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l1-2-0.dll',
+   'C:\\Program Files (x86)\\Windows Kits\\10\\Windows Performance '
+   'Toolkit\\api-ms-win-core-file-l1-2-0.dll',
+   'BINARY')],
+ [],
+ [],
+ [('PySide6\\translations\\qt_help_sl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_sl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_en.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_en.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_lt.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_lt.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_fa.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_fa.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_nl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_nl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_zh_CN.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_zh_CN.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_fi.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_fi.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_uk.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_uk.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_uk.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_uk.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_fr.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_fr.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_tr.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_tr.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_ar.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_ar.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_bg.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_bg.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_cs.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_cs.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_nl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_nl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_pl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_pl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_it.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_it.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_lv.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_lv.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_zh_CN.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_zh_CN.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_pt_PT.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_pt_PT.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_ja.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_ja.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_nn.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_nn.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_de.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_de.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_pt_BR.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_pt_BR.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_sv.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_sv.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_hr.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_hr.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_zh_TW.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_zh_TW.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_nn.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_nn.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_en.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_en.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_pt_BR.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_pt_BR.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_lg.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_lg.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_fr.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_fr.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_he.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_he.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_hu.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_hu.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_da.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_da.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_ru.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_ru.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_zh_TW.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_zh_TW.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_he.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_he.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_da.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_da.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_nl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_nl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_tr.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_tr.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_ru.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_ru.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_es.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_es.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_tr.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_tr.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_da.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_da.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_de.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_de.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_bg.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_bg.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_it.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_it.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_de.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_de.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_en.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_en.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_bg.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_bg.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_ja.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_ja.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_sv.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_sv.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_ca.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_ca.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_fa.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_fa.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_ar.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_ar.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_es.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_es.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_hr.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_hr.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_sk.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_sk.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_it.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_it.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_cs.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_cs.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_gd.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_gd.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_lg.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_lg.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_lv.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_lv.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_pl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_pl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_sk.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_sk.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_gl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_gl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_ar.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_ar.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_zh_CN.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_zh_CN.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_ko.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_ko.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_ka.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_ka.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_ja.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_ja.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_ka.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_ka.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_ko.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_ko.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_cs.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_cs.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_hu.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_hu.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_es.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_es.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_ka.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_ka.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_ca.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_ca.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_sv.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_sv.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_ru.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_ru.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_fi.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_fi.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_pt_BR.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_pt_BR.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_pl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_pl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_hu.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_hu.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_sl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_sl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_zh_TW.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_zh_TW.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_ko.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_ko.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_uk.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_uk.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_ca.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_ca.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_gd.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_gd.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_nn.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_nn.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_sk.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_sk.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_gl.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_gl.qm',
+   'DATA'),
+  ('PySide6\\translations\\qt_help_fr.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qt_help_fr.qm',
+   'DATA'),
+  ('PySide6\\translations\\qtbase_hr.qm',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\site-packages\\PySide6\\translations\\qtbase_hr.qm',
+   'DATA'),
+  ('base_library.zip',
+   'C:\\Programming\\Noisewater Labs\\Remedy\\build\\Remedy\\base_library.zip',
+   'DATA')],
+ [('heapq',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\heapq.py',
+   'PYMODULE'),
+  ('locale',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\locale.py',
+   'PYMODULE'),
+  ('traceback',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\traceback.py',
+   'PYMODULE'),
+  ('reprlib',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\reprlib.py',
+   'PYMODULE'),
+  ('functools',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\functools.py',
+   'PYMODULE'),
+  ('_weakrefset',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\_weakrefset.py',
+   'PYMODULE'),
+  ('weakref',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\weakref.py',
+   'PYMODULE'),
+  ('io',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\io.py',
+   'PYMODULE'),
+  ('sre_compile',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\sre_compile.py',
+   'PYMODULE'),
+  ('re',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\re.py',
+   'PYMODULE'),
+  ('linecache',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\linecache.py',
+   'PYMODULE'),
+  ('posixpath',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\posixpath.py',
+   'PYMODULE'),
+  ('copyreg',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\copyreg.py',
+   'PYMODULE'),
+  ('enum',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\enum.py',
+   'PYMODULE'),
+  ('encodings.zlib_codec',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\zlib_codec.py',
+   'PYMODULE'),
+  ('encodings.uu_codec',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\uu_codec.py',
+   'PYMODULE'),
+  ('encodings.utf_8_sig',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\utf_8_sig.py',
+   'PYMODULE'),
+  ('encodings.utf_8',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\utf_8.py',
+   'PYMODULE'),
+  ('encodings.utf_7',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\utf_7.py',
+   'PYMODULE'),
+  ('encodings.utf_32_le',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\utf_32_le.py',
+   'PYMODULE'),
+  ('encodings.utf_32_be',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\utf_32_be.py',
+   'PYMODULE'),
+  ('encodings.utf_32',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\utf_32.py',
+   'PYMODULE'),
+  ('encodings.utf_16_le',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\utf_16_le.py',
+   'PYMODULE'),
+  ('encodings.utf_16_be',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\utf_16_be.py',
+   'PYMODULE'),
+  ('encodings.utf_16',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\utf_16.py',
+   'PYMODULE'),
+  ('encodings.unicode_escape',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\unicode_escape.py',
+   'PYMODULE'),
+  ('encodings.undefined',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\undefined.py',
+   'PYMODULE'),
+  ('encodings.tis_620',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\tis_620.py',
+   'PYMODULE'),
+  ('encodings.shift_jisx0213',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\shift_jisx0213.py',
+   'PYMODULE'),
+  ('encodings.shift_jis_2004',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\shift_jis_2004.py',
+   'PYMODULE'),
+  ('encodings.shift_jis',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\shift_jis.py',
+   'PYMODULE'),
+  ('encodings.rot_13',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\rot_13.py',
+   'PYMODULE'),
+  ('encodings.raw_unicode_escape',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\raw_unicode_escape.py',
+   'PYMODULE'),
+  ('encodings.quopri_codec',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\quopri_codec.py',
+   'PYMODULE'),
+  ('encodings.punycode',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\punycode.py',
+   'PYMODULE'),
+  ('encodings.ptcp154',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\ptcp154.py',
+   'PYMODULE'),
+  ('encodings.palmos',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\palmos.py',
+   'PYMODULE'),
+  ('encodings.oem',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\oem.py',
+   'PYMODULE'),
+  ('encodings.mbcs',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mbcs.py',
+   'PYMODULE'),
+  ('encodings.mac_turkish',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_turkish.py',
+   'PYMODULE'),
+  ('encodings.mac_romanian',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_romanian.py',
+   'PYMODULE'),
+  ('encodings.mac_roman',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_roman.py',
+   'PYMODULE'),
+  ('encodings.mac_latin2',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_latin2.py',
+   'PYMODULE'),
+  ('encodings.mac_iceland',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_iceland.py',
+   'PYMODULE'),
+  ('encodings.mac_greek',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_greek.py',
+   'PYMODULE'),
+  ('encodings.mac_farsi',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_farsi.py',
+   'PYMODULE'),
+  ('encodings.mac_cyrillic',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_cyrillic.py',
+   'PYMODULE'),
+  ('encodings.mac_croatian',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_croatian.py',
+   'PYMODULE'),
+  ('encodings.mac_arabic',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\mac_arabic.py',
+   'PYMODULE'),
+  ('encodings.latin_1',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\latin_1.py',
+   'PYMODULE'),
+  ('encodings.kz1048',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\kz1048.py',
+   'PYMODULE'),
+  ('encodings.koi8_u',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\koi8_u.py',
+   'PYMODULE'),
+  ('encodings.koi8_t',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\koi8_t.py',
+   'PYMODULE'),
+  ('encodings.koi8_r',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\koi8_r.py',
+   'PYMODULE'),
+  ('encodings.johab',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\johab.py',
+   'PYMODULE'),
+  ('encodings.iso8859_9',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_9.py',
+   'PYMODULE'),
+  ('encodings.iso8859_8',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_8.py',
+   'PYMODULE'),
+  ('encodings.iso8859_7',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_7.py',
+   'PYMODULE'),
+  ('encodings.iso8859_6',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_6.py',
+   'PYMODULE'),
+  ('encodings.iso8859_5',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_5.py',
+   'PYMODULE'),
+  ('encodings.iso8859_4',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_4.py',
+   'PYMODULE'),
+  ('encodings.iso8859_3',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_3.py',
+   'PYMODULE'),
+  ('encodings.iso8859_2',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_2.py',
+   'PYMODULE'),
+  ('encodings.iso8859_16',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_16.py',
+   'PYMODULE'),
+  ('encodings.iso8859_15',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_15.py',
+   'PYMODULE'),
+  ('encodings.iso8859_14',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_14.py',
+   'PYMODULE'),
+  ('encodings.iso8859_13',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_13.py',
+   'PYMODULE'),
+  ('encodings.iso8859_11',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_11.py',
+   'PYMODULE'),
+  ('encodings.iso8859_10',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_10.py',
+   'PYMODULE'),
+  ('encodings.iso8859_1',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso8859_1.py',
+   'PYMODULE'),
+  ('encodings.iso2022_kr',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso2022_kr.py',
+   'PYMODULE'),
+  ('encodings.iso2022_jp_ext',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso2022_jp_ext.py',
+   'PYMODULE'),
+  ('encodings.iso2022_jp_3',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso2022_jp_3.py',
+   'PYMODULE'),
+  ('encodings.iso2022_jp_2004',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso2022_jp_2004.py',
+   'PYMODULE'),
+  ('encodings.iso2022_jp_2',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso2022_jp_2.py',
+   'PYMODULE'),
+  ('encodings.iso2022_jp_1',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso2022_jp_1.py',
+   'PYMODULE'),
+  ('encodings.iso2022_jp',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\iso2022_jp.py',
+   'PYMODULE'),
+  ('encodings.idna',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\idna.py',
+   'PYMODULE'),
+  ('encodings.hz',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\hz.py',
+   'PYMODULE'),
+  ('encodings.hp_roman8',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\hp_roman8.py',
+   'PYMODULE'),
+  ('encodings.hex_codec',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\hex_codec.py',
+   'PYMODULE'),
+  ('encodings.gbk',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\gbk.py',
+   'PYMODULE'),
+  ('encodings.gb2312',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\gb2312.py',
+   'PYMODULE'),
+  ('encodings.gb18030',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\gb18030.py',
+   'PYMODULE'),
+  ('encodings.euc_kr',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\euc_kr.py',
+   'PYMODULE'),
+  ('encodings.euc_jp',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\euc_jp.py',
+   'PYMODULE'),
+  ('encodings.euc_jisx0213',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\euc_jisx0213.py',
+   'PYMODULE'),
+  ('encodings.euc_jis_2004',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\euc_jis_2004.py',
+   'PYMODULE'),
+  ('encodings.cp950',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp950.py',
+   'PYMODULE'),
+  ('encodings.cp949',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp949.py',
+   'PYMODULE'),
+  ('encodings.cp932',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp932.py',
+   'PYMODULE'),
+  ('encodings.cp875',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp875.py',
+   'PYMODULE'),
+  ('encodings.cp874',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp874.py',
+   'PYMODULE'),
+  ('encodings.cp869',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp869.py',
+   'PYMODULE'),
+  ('encodings.cp866',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp866.py',
+   'PYMODULE'),
+  ('encodings.cp865',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp865.py',
+   'PYMODULE'),
+  ('encodings.cp864',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp864.py',
+   'PYMODULE'),
+  ('encodings.cp863',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp863.py',
+   'PYMODULE'),
+  ('encodings.cp862',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp862.py',
+   'PYMODULE'),
+  ('encodings.cp861',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp861.py',
+   'PYMODULE'),
+  ('encodings.cp860',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp860.py',
+   'PYMODULE'),
+  ('encodings.cp858',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp858.py',
+   'PYMODULE'),
+  ('encodings.cp857',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp857.py',
+   'PYMODULE'),
+  ('encodings.cp856',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp856.py',
+   'PYMODULE'),
+  ('encodings.cp855',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp855.py',
+   'PYMODULE'),
+  ('encodings.cp852',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp852.py',
+   'PYMODULE'),
+  ('encodings.cp850',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp850.py',
+   'PYMODULE'),
+  ('encodings.cp775',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp775.py',
+   'PYMODULE'),
+  ('encodings.cp737',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp737.py',
+   'PYMODULE'),
+  ('encodings.cp720',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp720.py',
+   'PYMODULE'),
+  ('encodings.cp500',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp500.py',
+   'PYMODULE'),
+  ('encodings.cp437',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp437.py',
+   'PYMODULE'),
+  ('encodings.cp424',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp424.py',
+   'PYMODULE'),
+  ('encodings.cp273',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp273.py',
+   'PYMODULE'),
+  ('encodings.cp1258',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1258.py',
+   'PYMODULE'),
+  ('encodings.cp1257',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1257.py',
+   'PYMODULE'),
+  ('encodings.cp1256',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1256.py',
+   'PYMODULE'),
+  ('encodings.cp1255',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1255.py',
+   'PYMODULE'),
+  ('encodings.cp1254',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1254.py',
+   'PYMODULE'),
+  ('encodings.cp1253',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1253.py',
+   'PYMODULE'),
+  ('encodings.cp1252',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1252.py',
+   'PYMODULE'),
+  ('encodings.cp1251',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1251.py',
+   'PYMODULE'),
+  ('encodings.cp1250',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1250.py',
+   'PYMODULE'),
+  ('encodings.cp1140',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1140.py',
+   'PYMODULE'),
+  ('encodings.cp1125',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1125.py',
+   'PYMODULE'),
+  ('encodings.cp1026',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1026.py',
+   'PYMODULE'),
+  ('encodings.cp1006',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp1006.py',
+   'PYMODULE'),
+  ('encodings.cp037',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\cp037.py',
+   'PYMODULE'),
+  ('encodings.charmap',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\charmap.py',
+   'PYMODULE'),
+  ('encodings.bz2_codec',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\bz2_codec.py',
+   'PYMODULE'),
+  ('encodings.big5hkscs',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\big5hkscs.py',
+   'PYMODULE'),
+  ('encodings.big5',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\big5.py',
+   'PYMODULE'),
+  ('encodings.base64_codec',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\base64_codec.py',
+   'PYMODULE'),
+  ('encodings.ascii',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\ascii.py',
+   'PYMODULE'),
+  ('encodings.aliases',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\aliases.py',
+   'PYMODULE'),
+  ('encodings',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\encodings\\__init__.py',
+   'PYMODULE'),
+  ('sre_parse',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\sre_parse.py',
+   'PYMODULE'),
+  ('_collections_abc',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\_collections_abc.py',
+   'PYMODULE'),
+  ('collections.abc',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\collections\\abc.py',
+   'PYMODULE'),
+  ('collections',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\collections\\__init__.py',
+   'PYMODULE'),
+  ('sre_constants',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\sre_constants.py',
+   'PYMODULE'),
+  ('keyword',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\keyword.py',
+   'PYMODULE'),
+  ('codecs',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\codecs.py',
+   'PYMODULE'),
+  ('warnings',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\warnings.py',
+   'PYMODULE'),
+  ('os',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\os.py',
+   'PYMODULE'),
+  ('genericpath',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\genericpath.py',
+   'PYMODULE'),
+  ('operator',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\operator.py',
+   'PYMODULE'),
+  ('_bootlocale',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\_bootlocale.py',
+   'PYMODULE'),
+  ('abc',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\abc.py',
+   'PYMODULE'),
+  ('ntpath',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\ntpath.py',
+   'PYMODULE'),
+  ('types',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\types.py',
+   'PYMODULE'),
+  ('stat',
+   'C:\\Users\\Dr. '
+   'Noisewater\\AppData\\Local\\Programs\\Python\\Python39\\lib\\stat.py',
+   'PYMODULE')])
