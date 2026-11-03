@@ -131,20 +131,20 @@ class MainWindow(QMainWindow):
     def _sidebar(self) -> QFrame:
         side = QFrame()
         side.setObjectName("sidebar")
-        side.setFixedWidth(236)
+        side.setFixedWidth(240)
         lay = QVBoxLayout(side)
-        lay.setContentsMargins(0, 18, 0, 14)
+        lay.setContentsMargins(0, 20, 0, 16)
         lay.setSpacing(4)
 
         brand = QHBoxLayout()
-        brand.setContentsMargins(20, 0, 14, 10)
+        brand.setContentsMargins(20, 0, 16, 12)
         logo = QLabel()
         logo.setPixmap(W.app_icon().pixmap(34, 34))
         brand.addWidget(logo)
         names = QVBoxLayout()
         names.setSpacing(0)
-        names.addWidget(W.GradientLabel(APP_NAME, 17, weight=QFont.ExtraBold))
-        names.addWidget(W.label(f"BY {APP_PUBLISHER.upper()}", "brandsub"))
+        names.addWidget(W.GradientLabel(APP_NAME, 17, weight=QFont.DemiBold))
+        names.addWidget(W.label(f"by {APP_PUBLISHER}", "brandsub"))
         brand.addLayout(names, 1)
         lay.addLayout(brand)
 
@@ -167,14 +167,14 @@ class MainWindow(QMainWindow):
                     spacer.setSizeHint(QSize(10, 10))
                     self.nav.addItem(spacer)
                 else:
-                    head = QListWidgetItem(("▸  " if sec in collapsed else "▾  ") + sec)
+                    head = QListWidgetItem(("▸  " if sec in collapsed else "▾  ") + sec.capitalize())
                     head.setFlags(Qt.ItemIsEnabled)
                     head.setData(Qt.UserRole + 1, sec)
                     head.setToolTip("Click to fold or unfold this group")
                     f = QFont()
                     f.setPointSize(8)
-                    f.setBold(True)
-                    f.setLetterSpacing(QFont.AbsoluteSpacing, 1.1)
+                    f.setPointSize(9)
+                    f.setWeight(QFont.Medium)
                     head.setFont(f)
                     head.setForeground(Qt.gray)
                     self.nav.addItem(head)
@@ -228,7 +228,7 @@ class MainWindow(QMainWindow):
             collapsed.discard(sec)
         for it in items:
             it.setHidden(fold)
-        head.setText(("▸  " if fold else "▾  ") + sec)
+        head.setText(("▸  " if fold else "▾  ") + sec.capitalize())
         settings.set("nav_collapsed", sorted(collapsed))
 
     def _nav_clicked(self, item):
@@ -262,7 +262,7 @@ class MainWindow(QMainWindow):
         self.crumbs.setSpacing(2)
         lay.addLayout(self.crumbs)
         lay.addStretch(1)
-        self.btn_search = W.button("Search…                     Ctrl+K", "search", self.open_palette,
+        self.btn_search = W.button("Search                         Ctrl+K", "search", self.open_palette,
                                    "Jump to any page, tool, tweak, app or setting")
         self.btn_search.setMinimumWidth(250)
         self.btn_search.setAccessibleName("Search")

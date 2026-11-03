@@ -209,19 +209,20 @@ def pill(text: str, color: str) -> QLabel:
     lb = QLabel(text)
     lb.setObjectName("pill")
     c = QColor(color)
-    lb.setStyleSheet(f"background: rgba({c.red()},{c.green()},{c.blue()},0.16); color: {color};")
+    lb.setStyleSheet(f"background: transparent; border: 1px solid rgba({c.red()},{c.green()},{c.blue()},0.35); "
+                     f"color: {color};")
     return lb
 
 
 class GradientLabel(QWidget):
-    """Text painted with the Remedy teal to violet gradient (matches the splash)."""
+    """Display text in one solid colour (kept as a class so older callers still work; the gradient was removed)."""
 
     def __init__(self, text: str, pixel_size: int = 18, weight=QFont.Bold, parent=None):
         super().__init__(parent)
         self.text = text
         self.font_ = QFont(self.font())
         self.font_.setPixelSize(pixel_size)
-        self.font_.setWeight(weight)
+        self.font_.setWeight(min(weight, QFont.DemiBold))
         from PySide6.QtGui import QFontMetrics
         fm = QFontMetrics(self.font_)
         self.setFixedSize(fm.horizontalAdvance(text) + 4, fm.height() + 2)
@@ -230,11 +231,8 @@ class GradientLabel(QWidget):
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
         p.setRenderHint(QPainter.TextAntialiasing)
-        g = QLinearGradient(0, 0, max(1, self.width()), 0)
-        g.setColorAt(0, QColor(theme.ACCENT))
-        g.setColorAt(1, QColor(theme.ACCENT2))
         p.setFont(self.font_)
-        p.setPen(QPen(QBrush(g), 1))
+        p.setPen(QColor(theme.TEXT))
         p.drawText(self.rect(), Qt.AlignLeft | Qt.AlignVCenter, self.text)
         p.end()
 
@@ -244,10 +242,10 @@ class Card(QFrame):
         super().__init__(parent)
         self.setObjectName("card")
         self.body = QVBoxLayout(self)
-        self.body.setContentsMargins(18, 16, 18, 16)
-        self.body.setSpacing(10)
+        self.body.setContentsMargins(20, 16, 20, 16)
+        self.body.setSpacing(12)
         if title:
-            self.body.addWidget(label(title.upper(), "cardtitle"))
+            self.body.addWidget(label(title, "cardtitle"))
 
 
 class Sparkline(QWidget):
@@ -272,19 +270,7 @@ class Sparkline(QWidget):
         for i, v in enumerate(self.values):
             x, y = r.left() + i * step, r.bottom() - v / 100 * r.height()
             path.moveTo(x, y) if i == 0 else path.lineTo(x, y)
-        fill = QPainterPath(path)
-        fill.lineTo(r.right(), r.bottom())
-        fill.lineTo(r.left(), r.bottom())
-        fill.closeSubpath()
-        g = QLinearGradient(0, r.top(), 0, r.bottom())
-        c1 = QColor(self.color)
-        c1.setAlpha(90)
-        c2 = QColor(self.color)
-        c2.setAlpha(0)
-        g.setColorAt(0, c1)
-        g.setColorAt(1, c2)
-        p.fillPath(fill, QBrush(g))
-        p.setPen(QPen(self.color, 2))
+        p.setPen(QPen(self.color, 1.5))
         p.drawPath(path)
         p.end()
 
@@ -350,12 +336,12 @@ class ScoreRing(QWidget):
     @staticmethod
     def grade(score):
         if score >= 90:
-            return "EXCELLENT", theme.OK
+            return "Excellent", theme.OK
         if score >= 75:
-            return "GOOD", theme.OK
+            return "Good", theme.OK
         if score >= 55:
-            return "FAIR", theme.WARN
-        return "NEEDS WORK", theme.DANGER
+            return "Fair", theme.WARN
+        return "Needs work", theme.DANGER
 
     def paintEvent(self, _e):
         p = QPainter(self)
@@ -373,18 +359,14 @@ class ScoreRing(QWidget):
             p.end()
             return
         label_text, color = self.grade(self.score)
-        glow = QColor(color)
-        glow.setAlpha(40)
         span = -int(360 * 16 * self._shown / 100)
-        p.setPen(QPen(glow, self.STROKE + 8, Qt.SolidLine, Qt.RoundCap))
-        p.drawArc(r, 90 * 16, span)
         p.setPen(QPen(QColor(color), self.STROKE, Qt.SolidLine, Qt.RoundCap))
         p.drawArc(r, 90 * 16, span)
 
         cx, cy = r.center().x(), r.center().y()
         num = QFont(base)
         num.setPixelSize(50)
-        num.setWeight(QFont.Bold)
+        num.setWeight(QFont.Medium)
         p.setFont(num)
         p.setPen(QColor(theme.TEXT))
         p.drawText(QRectF(cx - 70, cy - 46, 140, 56), Qt.AlignHCenter | Qt.AlignBottom, str(int(round(self._shown))))
@@ -394,9 +376,8 @@ class ScoreRing(QWidget):
         p.setPen(QColor(theme.MUTED))
         p.drawText(QRectF(cx - 70, cy + 10, 140, 16), Qt.AlignCenter, "out of 100")
         tag = QFont(base)
-        tag.setPixelSize(11)
-        tag.setWeight(QFont.Bold)
-        tag.setLetterSpacing(QFont.AbsoluteSpacing, 1.2)
+        tag.setPixelSize(12)
+        tag.setWeight(QFont.Medium)
         p.setFont(tag)
         p.setPen(QColor(color))
         p.drawText(QRectF(cx - 70, cy + 28, 140, 16), Qt.AlignCenter, label_text)
@@ -458,10 +439,7 @@ class ShareDelegate(QStyledItemDelegate):
         painter.setPen(Qt.NoPen)
         painter.setBrush(QColor(theme.SURFACE2))
         painter.drawRoundedRect(bar, 4, 4)
-        g = QLinearGradient(bar.left(), 0, bar.right(), 0)
-        g.setColorAt(0, QColor(theme.ACCENT))
-        g.setColorAt(1, QColor(theme.ACCENT2))
-        painter.setBrush(QBrush(g))
+        painter.setBrush(QColor(theme.ACCENT))
         painter.drawRoundedRect(QRectF(bar.left(), bar.top(), max(3.0, bar.width() * float(frac)), 8), 4, 4)
         painter.setPen(QColor(theme.MUTED))
         painter.drawText(QRectF(option.rect.right() - 46, option.rect.top(), 44, option.rect.height()),
@@ -663,7 +641,7 @@ class ActivityPanel(QFrame):
         self.lay = QVBoxLayout(self)
         self.lay.setContentsMargins(12, 10, 12, 10)
         self.lay.setSpacing(8)
-        head = label("RUNNING", "cardtitle")
+        head = label("Running", "cardtitle")
         self.lay.addWidget(head)
         self.entries: dict = {}
         self._next = 0

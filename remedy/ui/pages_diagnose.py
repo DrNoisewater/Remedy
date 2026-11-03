@@ -47,7 +47,7 @@ class ProviderChip(QFrame):
         lay = QVBoxLayout(self)
         lay.setContentsMargins(12, 8, 12, 8)
         lay.setSpacing(2)
-        self.title = label(D.PROVIDER_LABEL.get(name, name).upper(), "cardtitle")
+        self.title = label(D.PROVIDER_LABEL.get(name, name), "cardtitle")
         self.state = label("Not run", "faint")
         lay.addWidget(self.title)
         lay.addWidget(self.state)
@@ -120,7 +120,7 @@ class DiagnosePage(BasePage):
         hl = QVBoxLayout(hero)
         hl.setContentsMargins(28, 24, 28, 24)
         hl.setSpacing(10)
-        hl.addWidget(label("START HERE", "kicker"))
+        hl.addWidget(label("Start here", "kicker"))
         t = label("What's wrong with this PC?", "h1")
         hl.addWidget(t)
         hl.addWidget(label("Remedy watches the PC for a few seconds, reads what Windows reports, and lists only what "
@@ -165,7 +165,7 @@ class DiagnosePage(BasePage):
         ll.setContentsMargins(0, 0, 0, 0)
         ll.setSpacing(8)
         filt = QHBoxLayout()
-        filt.addWidget(label("FINDINGS", "cardtitle"))
+        filt.addWidget(label("Findings", "cardtitle"))
         filt.addStretch(1)
         self.sev_filter = QComboBox()
         self.sev_filter.addItems(["All severities", "High", "Medium and above", "Hide info"])
@@ -591,7 +591,7 @@ class DiagnosePage(BasePage):
         self.btn_apply.setText(f"Apply {len(ids)} approved change{'s' if len(ids) != 1 else ''}")
         self.btn_apply.setEnabled(bool(ids) and (self.worker is None or not self.worker.isRunning()))
         _clear(self.preflight_box)
-        self.preflight_box.addWidget(label("PREFLIGHT", "cardtitle"), 0, Qt.AlignTop)
+        self.preflight_box.addWidget(label("Preflight", "cardtitle"), 0, Qt.AlignTop)
         parts = [f"<span style='color:{theme.OK if ok else theme.WARN}'>{'✓' if ok else '!'} <b>{name}</b>: "
                  f"{detail}</span>" for name, ok, detail in repair.preflight(ids)]
         lb = label("&nbsp;&nbsp;·&nbsp;&nbsp;".join(parts), "", wrap=True)

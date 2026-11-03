@@ -85,7 +85,7 @@ class CleanerPage(BasePage):
         col = QVBoxLayout()
         self.big = label("0 B", "bignum")
         self.big_sub = label("Scanning for junk…", "muted", wrap=True)
-        col.addWidget(label("RECLAIMABLE SPACE", "cardtitle"))
+        col.addWidget(label("Reclaimable space", "cardtitle"))
         col.addWidget(self.big)
         col.addWidget(self.big_sub)
         row.addLayout(col, 1)
