@@ -5,7 +5,7 @@ import os
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QGuiApplication
-from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox, QHBoxLayout, QLineEdit, QMenu, QSpinBox, QSplitter,
+from PySide6.QtWidgets import (QCheckBox, QComboBox, QDoubleSpinBox, QHBoxLayout, QLineEdit, QMenu, QSpinBox, QSplitter,
                                QStyle, QTreeWidgetItem, QVBoxLayout, QWidget)
 
 from ..core import junk, scanner
@@ -396,9 +396,14 @@ class DuplicatesPage(BasePage):
         self.min_size.setDecimals(2)
         self.min_size.setSuffix(" MB")
         self.min_size.setValue(float(settings.get("duplicate_min_mb")))
+        self.include_apps = QCheckBox("Include app and game folders")
+        self.include_apps.setToolTip("Off by default: apps and games often contain identical files on purpose, and "
+                                     "removing one copy can break them. Program Files, AppData, Steam games and "
+                                     "developer folders are skipped.")
         controls.addWidget(self.location, 3)
         controls.addWidget(label("Ignore files under", "muted"))
         controls.addWidget(self.min_size)
+        controls.addWidget(self.include_apps)
         self.root.addLayout(controls)
         self.progress = ProgressRow()
         self.root.addWidget(self.progress)
@@ -440,8 +445,13 @@ class DuplicatesPage(BasePage):
         if not roots:
             return
         settings.set("duplicate_min_mb", self.min_size.value())
+        if self.include_apps.isChecked() and not confirm(
+                self, "Include app and game folders?",
+                "Apps and games often keep identical copies of a file on purpose. Removing one can stop that app "
+                "or game from working. Only remove copies you recognise as your own files.", "Include them"):
+            self.include_apps.setChecked(False)
         self.run(scanner.find_duplicates, roots, int(self.min_size.value() * 1024 * 1024),
-                 progress=self.progress, text="Listing files…", on_done=self._populate,
+                 self.include_apps.isChecked(), progress=self.progress, text="Listing files…", on_done=self._populate,
                  summary=lambda r: (f"{len(r['groups']):,} sets of duplicates · "
                                     f"{human_size(sum(g['wasted'] for g in r['groups']))} recoverable"))
 

@@ -143,6 +143,56 @@ KNOWN_BLOAT = {
 }
 
 
+# Apps Remedy will never remove, even from the full list: Windows or Remedy need them, or they're hard to get back.
+PROTECTED_APPX = {
+    "Microsoft.WindowsStore": "Microsoft Store: needed to install and update apps, and hard to get back",
+    "Microsoft.StorePurchaseApp": "Store purchases: needed by the Microsoft Store",
+    "Microsoft.DesktopAppInstaller": "App Installer (winget): Windows and Remedy use it to install apps",
+    "Microsoft.SecHealthUI": "Windows Security: your antivirus and firewall settings",
+    "Microsoft.AAD.BrokerPlugin": "Work and school sign-in",
+    "Microsoft.AccountsControl": "Microsoft account sign-in",
+    "Microsoft.LockApp": "The lock screen",
+    "Microsoft.Win32WebViewHost": "Shows web content inside Windows",
+    "Microsoft.HEIFImageExtension": "Photo support (HEIF/HEIC)",
+    "Microsoft.HEVCVideoExtension": "Video support (HEVC)",
+    "Microsoft.AV1VideoExtension": "Video support (AV1)",
+    "Microsoft.VP9VideoExtensions": "Video support (VP9)",
+    "Microsoft.WebMediaExtensions": "Web video and audio support",
+    "Microsoft.WebpImageExtension": "Photo support (WebP)",
+    "Microsoft.RawImageExtension": "Camera RAW photo support",
+}
+# Whole families: Windows components and hardware control panels from the PC's maker.
+PROTECTED_PREFIXES = {
+    "windows.": "Part of Windows (for example Settings)",
+    "Microsoft.Windows.": "Part of Windows",
+    "MicrosoftWindows.": "Part of Windows",
+    "Microsoft.MicrosoftEdge": "Microsoft Edge: Windows uses it to show web content",
+    "Microsoft.VCLibs": "Shared app component", "Microsoft.UI.Xaml": "Shared app component",
+    "Microsoft.NET.": "Shared app component", "Microsoft.WindowsAppRuntime": "Shared app component",
+    "Microsoft.Services.Store": "Shared app component",
+    "RealtekSemiconductorCorp.": "Sound control panel from your PC's maker",
+    "NVIDIACorp.": "Graphics control panel from your PC's maker",
+    "AppUp.Intel": "Graphics control panel from your PC's maker",
+    "IntelCorp.": "Driver tools from your PC's maker",
+    "AdvancedMicroDevicesInc": "Graphics control panel from your PC's maker",
+    "DolbyLaboratories.": "Sound features from your PC's maker",
+    "WavesAudio.": "Sound features from your PC's maker",
+    "DTSInc.": "Sound features from your PC's maker",
+    "SynapticsIncorporated.": "Touchpad settings from your PC's maker",
+    "ELANMicroelectronicsCorpo.": "Touchpad settings from your PC's maker",
+}
+
+
+def appx_protection(name: str) -> str:
+    """Why a Store app must not be removed ("" when removal is fine). Known bloat is never protected."""
+    if name in KNOWN_BLOAT:
+        return ""
+    if name in PROTECTED_APPX:
+        return PROTECTED_APPX[name]
+    low = name.lower()
+    return next((why for prefix, why in PROTECTED_PREFIXES.items() if low.startswith(prefix.lower())), "")
+
+
 def list_appx() -> list:
     if not IS_WINDOWS:
         return []
@@ -155,12 +205,16 @@ def list_appx() -> list:
             continue
         label, rec = KNOWN_BLOAT.get(a["Name"], ("", False))
         apps.append({"name": a["Name"], "full_name": a.get("PackageFullName", ""), "version": str(a.get("Version", "")),
-                     "label": label, "known": bool(label), "recommended": rec})
+                     "label": label, "known": bool(label), "recommended": rec,
+                     "protected": appx_protection(a["Name"])})
     apps.sort(key=lambda x: (not x["recommended"], not x["known"], x["name"].lower()))
     return apps
 
 
 def remove_appx(full_name: str, all_users: bool = False) -> str:
+    why = appx_protection(full_name.split("_")[0])
+    if why:
+        raise PermissionError(f"Protected: {why}")
     flag = " -AllUsers" if all_users else ""
     res = powershell(f"Remove-AppxPackage -Package {ps_quote(full_name)}{flag} -ErrorAction Stop", timeout=180)
     if not res.ok:

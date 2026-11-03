@@ -40,12 +40,17 @@ def percent_in(line: str):
     return int(value) if 0 <= value <= 100 else None
 
 
+# Windows allows one restore point per 24 h unless SystemRestorePointCreationFrequency is 0. Remedy sets it to 0
+# only for this one restore point and then puts the previous value back (or removes it if there was none).
 RESTORE_POINT_SCRIPT = (
-    "$k='HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRestore'; "
-    "New-ItemProperty -Path $k -Name SystemRestorePointCreationFrequency -Value 0 -PropertyType DWord -Force | Out-Null; "
+    "$k='HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\SystemRestore'; $n='SystemRestorePointCreationFrequency'; "
+    "$old=(Get-ItemProperty -Path $k -Name $n -ErrorAction SilentlyContinue).$n; "
+    "try { New-ItemProperty -Path $k -Name $n -Value 0 -PropertyType DWord -Force | Out-Null; "
     "Enable-ComputerRestore -Drive \"$env:SystemDrive\\\" -ErrorAction SilentlyContinue; "
     "Checkpoint-Computer -Description 'Remedy' -RestorePointType MODIFY_SETTINGS -ErrorAction Stop; "
-    "'Restore point created.'")
+    "'Restore point created.' } finally { "
+    "if ($null -eq $old) { Remove-ItemProperty -Path $k -Name $n -ErrorAction SilentlyContinue } "
+    "else { Set-ItemProperty -Path $k -Name $n -Value $old -ErrorAction SilentlyContinue } }")
 
 
 def create_restore_point() -> tuple:

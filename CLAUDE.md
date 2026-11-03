@@ -17,6 +17,12 @@ to click. Avoid code talk and jargon; if a technical term is unavoidable, say wh
 - Tests: `tests/test_smoke.py` (every module loads, the main window builds, version format) and
   `tests/test_features.py` (Windows-version tailoring, tweak/preset/maintenance/bloat catalogues, progress
   parsing, One-click optimize runner, health score, toasts).
+- `tests/test_windows_roundtrip.py` CHANGES WINDOWS SETTINGS (applies and undoes every registry tweak). It only
+  runs when `REMEDY_TWEAK_ROUNDTRIP=1`, which only the CI and Release workflows set on their throwaway Windows
+  machine. Never set it on a real PC.
+- Safety rules (each has a test): Recycle Bin is never a default; `services.ESSENTIAL` can't be stopped/disabled;
+  `programs.appx_protection()` blocks removing the Store, App Installer, Windows parts and OEM panels;
+  duplicates skip `scanner.APP_FOLDER_NAMES` by default; a failed restore point stops and asks.
 - Tweak ids in `remedy/core/tweaks.py` key the undo backups on users' PCs: never rename or remove one
   (a test guards the v1.1.0 ids).
 
@@ -24,7 +30,8 @@ to click. Avoid code talk and jargon; if a technical term is unavoidable, say wh
 
 - `remedy/core/` = the engine, no UI. `osinfo.py` detects Windows 10/11, release, edition, laptop/desktop;
   every tweak and maintenance action has a `target` ("", "win10", "win11") and tweaks may have a
-  `laptop_note`. `optimize.py` is One-click optimize. `tweaks.PRESETS` holds the preset lists.
+  `laptop_note`. Every tweak also needs an entry in `tweaks.IMPACT` (area, short gain, what you'll notice,
+  trade-off; keep estimates honest); a test enforces it. `optimize.py` is One-click optimize. `tweaks.PRESETS` holds the preset lists.
 - `remedy/ui/` = the pages. Shared pieces: `notify.py` (toasts: `main.notify(kind, title, body, action=...)`),
   `dialogs.py` (themed confirm/info/error), `widgets.py` (`BasePage.run(...)` gives every background task a
   progress strip, a sidebar "Running" entry and error toasts; pass `summary=` for the green "Done" line;
@@ -41,7 +48,7 @@ python3.12 -m venv .venv                                                       #
 .venv/bin/pip install -r requirements-ci.txt                                   # ~2 min (PySide6 is large)
 ```
 
-Tests (~0.6 s, 49 passed):
+Tests (~1 s, 57 passed; 52 Windows-only tests are skipped on Linux):
 
 ```bash
 .venv/bin/python -m pytest -q

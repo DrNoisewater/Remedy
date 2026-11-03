@@ -514,7 +514,210 @@ def build_tweaks() -> list:
                           "Only if you never print or save to PDF. Also closes a common attack target.",
                           risk="Advanced", admin=True, default_start="automatic", service_names=["Spooler"]))
     T.sort(key=lambda t: CATEGORY_ORDER.index(t.category))
-    return T
+    return attach_impact(T)
+
+
+# --------------------------------------------------------------------------- what you gain
+# Plain-language benefit for every tweak: (area, short gain shown in the list, what you'll notice, trade-off).
+# Numbers are typical results, not promises: they are deliberately honest, including "no speed change".
+AREAS = ["Speed", "Space", "Gaming", "Privacy", "Security", "Stability", "Comfort"]
+
+IMPACT = {
+    # ---- Windows 11
+    "classic_menu": ("Comfort", "Saves a click on every right-click",
+                     "Right-click shows the full menu straight away: no more 'Show more options'.",
+                     "A few newer apps only add their entries to the new-style menu."),
+    "end_task": ("Comfort", "Close frozen apps in one click",
+                 "Right-click a frozen app on the taskbar and choose End task. No need for Task Manager.",
+                 "None."),
+    "w11_start_recs": ("Comfort", "Cleaner Start menu",
+                       "Start stops promoting tips, new apps and shortcuts in its Recommended area.",
+                       "You won't see suggested shortcuts there."),
+    "w11_start_account": ("Comfort", "No sign-in or backup nags",
+                          "The account button in Start stops showing 'Back up your PC' and 'Sign in' badges.",
+                          "None."),
+    "w11_hide_widgets": ("Speed", "Frees ~100-300 MB of memory",
+                         "The Widgets button and its news board disappear, and the background web process "
+                         "that feeds them stops running.",
+                         "No weather or news board. Settings says the switch is managed by your organization."),
+    "w11_hide_chat": ("Comfort", "Tidier taskbar", "The Chat/Teams icon leaves the taskbar.",
+                      "None. Newer Windows 11 versions don't show it anyway."),
+    "w11_taskbar_left": ("Comfort", "Windows 10-style taskbar", "Start and your apps sit at the left edge again.",
+                         "None. It's purely a layout choice."),
+    "w11_never_combine": ("Comfort", "Switch windows in one click",
+                          "Every open window gets its own labelled taskbar button, so no hover-and-pick.",
+                          "With lots of windows open, the taskbar gets crowded."),
+    "w11_more_pins": ("Comfort", "One extra row of pinned apps",
+                      "Start shows more of your pinned apps and fewer recommendations.", "Fewer recent-file suggestions."),
+    "w11_snap_flyout": ("Comfort", "No accidental layout pop-up",
+                        "Hovering over Maximize no longer pops up the snap layout grid.",
+                        "Use Win+Z when you do want snap layouts."),
+    "w11_spotlight_icon": ("Comfort", "Cleaner desktop", "The 'Learn about this picture' icon leaves your desktop.",
+                           "None. Spotlight wallpapers keep working."),
+    "w11_clock_seconds": ("Comfort", "See the exact time", "The taskbar clock shows seconds.",
+                          "A tiny bit more power use, since the clock redraws every second."),
+    # ---- Performance
+    "power_plan": ("Speed", "0-5% in heavy work, snappier bursts",
+                   "The processor stays ready instead of idling down, so short bursts (opening apps, "
+                   "compiling, exports) start a touch faster.",
+                   "Uses more power and runs warmer: roughly 5-15 W more at idle on a desktop."),
+    "animations": ("Speed", "Windows feel ~0.2 s quicker",
+                   "Minimising, maximising and taskbar actions happen instantly instead of animating.",
+                   "Windows looks less smooth."),
+    "menu_delay": ("Speed", "Sub-menus open 0.4 s sooner",
+                   "Hovering over a menu item opens its sub-menu immediately instead of after 0.4 s.", "None."),
+    "startup_delay": ("Speed", "Startup apps ready up to ~10 s sooner",
+                      "After you sign in, your startup apps launch right away instead of waiting about 10 seconds.",
+                      "The first few seconds after sign-in can feel busier."),
+    "transparency": ("Speed", "Small saving on weak graphics",
+                     "Flat colours replace the frosted-glass effect. Helps a little on older or built-in graphics.",
+                     "Less polished look. On a modern graphics card you won't notice a speed difference."),
+    "hibernation": ("Space", "Frees about 40% of your RAM size on C:",
+                    "The hidden hiberfil.sys file is deleted, giving that space back on your system drive.",
+                    "No Hibernate option, and Fast Startup is switched off too."),
+    "fast_startup": ("Stability", "Fewer update and driver glitches",
+                     "Shut down becomes a full shut down, so updates finish and drivers start fresh each time.",
+                     "Starting from off takes roughly 5-15 seconds longer."),
+    "edge_background": ("Speed", "Frees ~100-300 MB if you don't use Edge",
+                        "Edge stops preloading when you sign in and stops lingering after you close it.",
+                        "Edge takes a second longer to open. Edge shows 'managed by your organization'."),
+    "delivery_p2p": ("Speed", "Saves upload bandwidth",
+                     "Your PC stops uploading Windows updates to other computers, which can be gigabytes a month.",
+                     "None for you. Updates still download normally."),
+    "storage_sense": ("Space", "Stops temp files piling up (often 1-10 GB)",
+                      "Windows clears temporary files automatically when the drive gets low.",
+                      "Recycle Bin items older than 30 days are emptied automatically."),
+    "background_apps": ("Speed", "Less background CPU and memory",
+                        "Store apps stop running when you're not using them, which also helps battery life.",
+                        "Some Store apps stop updating live tiles or sending notifications."),
+    # ---- Gaming
+    "game_mode": ("Gaming", "Steadier frame rates",
+                  "While a game runs, Windows gives it priority and holds back update installs.",
+                  "None."),
+    "game_dvr": ("Gaming", "Typically 1-5% more FPS",
+                 "Stops the constant background recording used for 'record what just happened' clips. Fewer stutters.",
+                 "No instant replay clips. Screenshots and manual recording still work."),
+    "hags": ("Gaming", "0-5% FPS, lower latency on recent GPUs",
+             "The graphics card schedules its own work. Needed for DLSS 3 frame generation on NVIDIA cards.",
+             "Rarely, older drivers become unstable. Untick it if games start crashing."),
+    "mouse_accel": ("Gaming", "Consistent aim",
+                    "The pointer moves the same distance for the same hand movement, however fast you move.",
+                    "The desktop pointer may feel slow at first. Raise the mouse speed to compensate."),
+    "sticky_keys": ("Comfort", "No pop-up mid-game",
+                    "Pressing Shift five times no longer opens the Sticky Keys prompt.",
+                    "Turn Sticky Keys on from Settings if you rely on it."),
+    "net_throttle": ("Gaming", "Little change on modern PCs",
+                     "Removes an old limit on network traffic while sound plays. Can help older PCs.",
+                     "Most modern PCs show no measurable difference."),
+    "xbox_services": ("Speed", "Tiny: ~10-30 MB of memory",
+                      "Stops Xbox sign-in and cloud-save services from running.",
+                      "The Xbox app, Game Pass and Xbox Live games stop working."),
+    # ---- Privacy & AI
+    "copilot": ("Privacy", "Copilot off your screen",
+                "The Copilot button and sidebar go away.", "No Copilot sidebar. The website still works."),
+    "w11_recall": ("Privacy", "No activity screenshots, frees up to tens of GB",
+                   "Recall stops saving snapshots of everything you do. On Copilot+ PCs that also frees the "
+                   "space set aside for them.",
+                   "You can't search your past activity with Recall."),
+    "w11_click_to_do": ("Privacy", "AI screen analysis off",
+                        "Click to Do stops analysing what's on your screen.", "No Click to Do suggestions."),
+    "ad_id": ("Privacy", "Fewer personalised ads",
+              "Apps can no longer link your activity across apps for targeted ads.",
+              "None. You see the same number of ads, just less personal."),
+    "tailored": ("Privacy", "Less data used for ads and tips",
+                 "Microsoft stops using your diagnostic data to pick tips and offers for you.", "None."),
+    "suggestions": ("Comfort", "No ads in Start, lock screen or Settings",
+                    "Removes promoted apps and tips, and stops Windows quietly installing promo apps like games.",
+                    "None."),
+    "web_search": ("Speed", "Faster Start search, stays on your PC",
+                   "Start search only looks at your PC, so results appear quicker and your typing isn't sent to Bing.",
+                   "No web results in Start. Use your browser for web searches."),
+    "feedback": ("Comfort", "No survey pop-ups",
+                 "Windows stops asking how likely you are to recommend it.", "None."),
+    "lang_list": ("Privacy", "Harder to fingerprint you",
+                  "Websites can't read your list of languages, one of many details used to track you.",
+                  "Some sites may not pick your language automatically."),
+    "track_progs": ("Privacy", "App use isn't recorded",
+                    "Windows stops keeping a list of which apps you open.", "The 'Most used' list in Start disappears."),
+    "activity": ("Privacy", "No activity timeline",
+                 "Windows stops recording and uploading which files and apps you used.",
+                 "You can't pick up activities on another PC."),
+    "error_reporting": ("Privacy", "Crash details stay on this PC",
+                        "Crash reports are no longer sent to Microsoft.",
+                        "Microsoft can't use your crash reports to send you a fix."),
+    "telemetry": ("Privacy", "Less data sent to Microsoft",
+                  "Diagnostic data drops to the minimum your edition allows, and the service that uploads it stops.",
+                  "Some troubleshooting and Insider features may stop working."),
+    # ---- Taskbar & Explorer
+    "file_ext": ("Security", "Spot fake files like 'invoice.pdf.exe'",
+                 "File names show their real type, so disguised programs stand out.",
+                 "Renaming a file can change its type by accident. Windows warns you first."),
+    "hidden_files": ("Comfort", "See hidden folders like AppData",
+                     "Hidden files and folders show up, dimmed, in File Explorer.",
+                     "More clutter, and system files are easier to delete by mistake."),
+    "this_pc": ("Comfort", "Explorer opens on your drives",
+                "File Explorer opens on This PC instead of Home.", "None."),
+    "search_icon": ("Comfort", "More taskbar space",
+                    "The wide search box becomes a small icon, leaving room for more apps.",
+                    "Press the icon or the Windows key and type to search."),
+    "task_view": ("Comfort", "Tidier taskbar", "The Task View button leaves the taskbar.", "Use Win+Tab instead."),
+    "news_interests": ("Speed", "Frees ~50-150 MB of memory",
+                       "The weather and news widget leaves the Windows 10 taskbar and stops refreshing in the background.",
+                       "No weather on the taskbar."),
+    "clipboard_history": ("Comfort", "Paste from your last 25 copies",
+                          "Win+V shows the things you copied recently, not just the latest one.",
+                          "Copied passwords stay in the history until you restart or clear it."),
+    "dark_mode": ("Comfort", "Easier on the eyes",
+                  "Windows and supported apps switch to dark colours. Small battery saving on OLED screens.",
+                  "None. Switch back any time."),
+    "long_paths": ("Stability", "Fewer 'path too long' errors",
+                   "Apps that support it can use very deep folders, for example when unzipping or copying projects.",
+                   "None."),
+    # ---- Background services
+    "sysmain": ("Speed", "Only helps on busy hard disks",
+                "Stops Windows preloading apps into memory. Can calm a constantly busy hard disk.",
+                "On SSDs, apps usually open slightly slower. Best left on for most PCs."),
+    "wsearch": ("Speed", "Less background disk work",
+                "Stops Windows indexing your files, mainly noticeable while indexing is running.",
+                "Searching in Start, Outlook and Explorer becomes much slower."),
+    "retail_demo": ("Comfort", "No noticeable change",
+                    "Turns off a shop-display service that is normally idle at home. Just tidiness.", "None."),
+    "fax": ("Comfort", "No noticeable change",
+            "Turns off the fax service, which is normally idle.", "You can't send faxes from this PC."),
+    "maps_broker": ("Speed", "Tiny: stops occasional map downloads",
+                    "Stops the background service that downloads and updates offline maps.",
+                    "The Maps app won't update offline maps."),
+    "spooler": ("Security", "Closes a known attack route",
+                "Turns off printing, a service that has been used to attack Windows (PrintNightmare).",
+                "No printing at all, including Print to PDF."),
+}
+
+
+def _hiberfil_gain() -> str:
+    """Real size of hiberfil.sys on this PC, when it can be read."""
+    try:
+        size = os.path.getsize(os.path.join(os.environ.get("SystemDrive", "C:") + os.sep, "hiberfil.sys"))
+    except OSError:
+        return ""
+    from .utils import human_size
+    return f"Frees {human_size(size)} on this PC" if size else ""
+
+
+def attach_impact(items: list) -> list:
+    for t in items:
+        area, gain, notice, tradeoff = IMPACT.get(t.id, ("Comfort", "", "", ""))
+        t.area, t.gain, t.notice, t.tradeoff = area, gain, notice, tradeoff
+        if t.id == "hibernation" and IS_WINDOWS:
+            t.gain = _hiberfil_gain() or t.gain
+    return items
+
+
+def gain_tally(items: list) -> str:
+    """'3 speed · 2 privacy · 1 comfort' for a set of tweaks."""
+    counts = {}
+    for t in items:
+        counts[t.area] = counts.get(t.area, 0) + 1
+    return " · ".join(f"{counts[a]} {a.lower()}" for a in AREAS if a in counts)
 
 
 # --------------------------------------------------------------------------- presets

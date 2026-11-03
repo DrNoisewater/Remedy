@@ -96,8 +96,9 @@ def build_categories() -> list:
     add("win_logs", "Old Windows log files", "Setup and servicing logs older than 7 days.",
         [JunkTarget(os.path.join(windir, "Logs"), "*.log", min_age_hours=168),
          JunkTarget(os.path.join(windir, "Panther"), "*.log", min_age_hours=168)], admin=True, default=False)
-    add("recycle_bin", "Recycle Bin", "Everything currently in the Recycle Bin on all drives.",
-        [], special="recycle")
+    add("recycle_bin", "Recycle Bin", "Everything currently in the Recycle Bin on all drives. Not ticked by "
+        "default, so nothing you deleted is lost for good by accident. Tick it when you're sure.",
+        [], special="recycle", default=False)
 
     browsers = {
         "Google Chrome": os.path.join(local, r"Google\Chrome\User Data"),
@@ -161,7 +162,8 @@ def _posix_categories() -> list:
                      [JunkTarget(os.path.join(home, ".cache"), min_age_hours=24)], default=False),
         JunkCategory("tmp", "Temporary files", "Your files in /tmp older than 24 hours.",
                      [JunkTarget("/tmp", min_age_hours=24)]),
-        JunkCategory("recycle_bin", "Trash", "Everything currently in the Trash.", [], special="recycle"),
+        JunkCategory("recycle_bin", "Trash", "Everything currently in the Trash. Not ticked by default.", [],
+                     special="recycle", default=False),
     ]
 
 

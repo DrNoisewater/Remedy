@@ -1,5 +1,5 @@
 # Remedy: PC optimization suite
-**by Noisewater Labs** · Windows 10 & 11 · v1.2.0
+**by Noisewater Labs** · Windows 10 & 11 · v1.2.1
 
 Remedy cleans, speeds up, repairs and sets up Windows PCs from one dark, modern app.
 
@@ -31,7 +31,7 @@ pre-selected on laptops, and the health check and One-click optimize only offer 
 | | **Duplicates** | Content-verified duplicates (size → partial hash → full hash); auto-select keep newest/oldest/shortest path; never deletes every copy |
 | | **Disk Analyzer** | Folder-size tree with share bars, breakdown by file type and top extensions; jump straight to Large Files/Duplicates for any folder |
 | Optimize | **Startup Apps** | Registry Run keys, Startup folders and logon scheduled tasks; enable/disable using the same mechanism as Task Manager |
-| | **Tweaks** | 58 reversible tweaks in six groups: **Windows 11** (classic right-click menu, End task, no Start recommendations or account nags, hide Widgets/Chat, taskbar left, never combine, more pins, no snap flyout, Spotlight icon, clock seconds), **Performance** (Ultimate Performance, animations, Fast Startup, Edge background, update sharing, Storage Sense…), **Gaming**, **Privacy & AI** (Copilot, Recall, Click to Do, telemetry, ads, Bing, feedback…), **Taskbar & Explorer** and **Background services**. Presets: Recommended for this PC, Gaming, Privacy, Windows 11 clean-up, Speed. Original values are backed up and restored exactly when undone |
+| | **Tweaks** | 58 reversible tweaks in six groups: **Windows 11** (classic right-click menu, End task, no Start recommendations or account nags, hide Widgets/Chat, taskbar left, never combine, more pins, no snap flyout, Spotlight icon, clock seconds), **Performance** (Ultimate Performance, animations, Fast Startup, Edge background, update sharing, Storage Sense…), **Gaming**, **Privacy & AI** (Copilot, Recall, Click to Do, telemetry, ads, Bing, feedback…), **Taskbar & Explorer** and **Background services**. Every tweak says what you gain (speed, space, gaming, privacy, security, stability or comfort) with an honest estimate, what you'll notice and the trade-off. Presets: Recommended for this PC, Gaming, Privacy, Windows 11 clean-up, Speed. Original values are backed up and restored exactly when undone |
 | | **Services** | All services with plain-English notes on which are safe to trim and which to keep; start/stop/startup type |
 | | **Processes** | Live task list with CPU/memory, end task / process tree, priority; critical system processes are blocked |
 | Apps | **New PC Setup** | 58 curated must-have apps in 10 categories, plus Essentials / Gamer / Developer / Creator bundles; silent batch install via winget with live output |
@@ -55,6 +55,18 @@ Shortcuts: F5 refresh/scan, Ctrl+F search, Esc cancel, Ctrl+1–9 jump between p
 - Symlinks/junctions are never followed; OneDrive cloud-only placeholders are skipped.
 - Tweaks back up original values to `%LOCALAPPDATA%\Noisewater Labs\Remedy\tweak_backup.json` and can create a
   **restore point** first (on by default).
+- **Restore point first, or stop:** if Windows can't create the restore point before tweaks or One-click optimize,
+  Remedy stops and asks instead of carrying on without a safety net. The temporary Windows setting it uses to allow
+  the restore point is put back afterwards.
+- **The Recycle Bin is never emptied unless you tick it**, and One-click optimize always leaves it alone.
+- **Essential Windows services** (networking, Wi-Fi, sound, sign-in, updates, security and core services) can't be
+  stopped or disabled from Remedy; the Services page marks them with a lock and says why.
+- **Protected apps:** the Microsoft Store, App Installer, Windows Security, Windows components, media codecs and
+  your PC maker's sound/graphics/touchpad panels can't be removed from the Bloatware page.
+- **Duplicates skip app and game folders** (Program Files, AppData, Steam, developer folders) unless you opt in,
+  because removing one copy there can break a program.
+- **Tested on real Windows:** every pull request applies and undoes every registry tweak on a throwaway Windows
+  machine and checks the original values come back exactly.
 - Every action is logged to `%LOCALAPPDATA%\Noisewater Labs\Remedy\remedy.log`.
 
 ## Project layout
