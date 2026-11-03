@@ -1,0 +1,57 @@
+# CI: checks every pull request on Windows (install, tests, build) so you see pass/fail before merging.
+name: CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install Python 3.12.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12.10"
+          cache: pip
+          cache-dependency-path: requirements-ci.txt
+
+      - name: Install dependencies (pinned)
+        run: python -m pip install --disable-pip-version-check -r requirements-ci.txt
+
+      - name: Run tests
+        run: python -m pytest -v
+
+      - name: Build Remedy.exe (release build)
+        run: |
+          python make_version_info.py
+          python -m PyInstaller --noconfirm --clean --onefile --windowed --uac-admin --name Remedy \
+            --icon remedy.ico --version-file version_info.txt --collect-submodules remedy main.py
+
+      - name: Package zip
+        shell: pwsh
+        run: |
+          $version = (python -c "from remedy.core.utils import APP_VERSION; print(APP_VERSION)").Trim()
+          $zip = "Remedy-v$version-win-x64.zip"
+          Compress-Archive -Path dist/Remedy.exe -DestinationPath $zip -Force
+          "ZIP_NAME=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Keep the test build for 7 days
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ZIP_NAME }}
+          path: ${{ env.ZIP_NAME }}
+          retention-days: 7
