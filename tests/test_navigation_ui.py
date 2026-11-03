@@ -21,6 +21,13 @@ def window():
     w.show()
     app.processEvents()
     yield w
+    # Let every background job finish before Qt and Python shut down: a thread still running at interpreter exit
+    # (e.g. a page's hardware query on Windows) can crash the test process after all tests have passed.
+    from remedy.ui import widgets as W
+    for worker in list(W._ACTIVE):
+        worker.cancel()
+        worker.wait(120000)
+    _pump(100)
     w.tasks.records.clear()
     w.close()
     app.processEvents()
@@ -99,7 +106,7 @@ def test_mouse_back_forward_restores_views(window):
 
 def test_navigation_never_cancels_a_running_task(window):
     w = window
-    page = w.pages["sysinfo"]
+    page = w.pages["sessions"]        # a page that starts no slow work of its own when shown
     release = {"go": False}
 
     def slow(ctx):
@@ -107,9 +114,9 @@ def test_navigation_never_cancels_a_running_task(window):
             time.sleep(0.02)
         return "finished"
 
-    w.navigate("sysinfo")
+    w.navigate("sessions")
     worker = page.run(slow, text="Slow test task")
-    for key in ("dashboard", "diagnose", "newpc", "settings"):
+    for key in ("dashboard", "diagnose", "newpc", "settings", "sessions"):
         w.navigate(key)
         _pump(30)
     w.go_back()
