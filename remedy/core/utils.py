@@ -65,6 +65,11 @@ DEFAULT_SETTINGS = {
     "duplicate_min_mb": 1.0,
     "max_large_results": 5000,
     "window_geometry": "",
+    "nav_collapsed": [],              # sidebar groups the user folded away
+    "privacy_mode": True,             # redact computer/user names in exported reports
+    "session_retention_days": 90,     # technician sessions older than this are deleted (0 = keep forever)
+    "last_profile": "",               # New PC Setup: the profile "My Standard Setup" reuses
+    "detail_level": "basic",          # basic | technician (how much raw evidence is shown by default)
 }
 
 

@@ -24,6 +24,10 @@ pre-selected on laptops, and the health check and One-click optimize only offer 
 
 | Section | Feature | What it does |
 |---|---|---|
+| Technician | **Diagnose & Repair** | Quick / Full / Custom read-only scans (performance sampling, storage, startup, Windows, security, drive health, network). Each finding shows severity, how sure Remedy is, the evidence (value, source, time window) and next steps. Approved repairs run from a reviewed Repair Plan and are re-measured to prove they worked |
+| | **New PC Setup** | Reusable profiles (Everyday, Gaming, Business, Laptop, Creator, your own): inspect the PC, configure, review a dry-run plan, deploy apps and settings with a resumable journal, verify, and save a client handoff report |
+| | **Security Center** | Defender, firewall and antivirus status, Defender's own detections, and a review of everything that starts with Windows (signatures, lead-only notes; nothing is quarantined by Remedy) |
+| | **Sessions & Reports** | Every diagnosis and setup saved on this PC: resume, review, export HTML reports or anonymized JSON |
 | Overview | **Dashboard** | Live CPU/RAM graphs, drive usage, detected Windows version, and a **health check** with a 0 to 100 score and a fix list tailored to this PC (junk, disk space, startup apps, tweaks not yet on, bloatware, battery) |
 | | **One-click optimize** | Restore point → junk clean → recommended tweaks for this Windows → (optional) bloat removal → DNS refresh, with a live checklist, per-step progress and a summary |
 | Clean up | **Junk Cleaner** | User/Windows temp, Windows Update & Delivery Optimization caches, error reports, crash dumps, thumbnail cache, old logs, Recycle Bin, Chrome/Edge/Brave/Vivaldi/Opera/Firefox and Windows web caches, app caches (Discord, Slack, Teams, VS Code, Spotify, Steam), GPU shader caches, dev package caches, recent-files list |
@@ -44,7 +48,7 @@ pre-selected on laptops, and the health check and One-click optimize only offer 
 **Feedback everywhere:** every task shows a progress strip with percent, elapsed time and time left, a sidebar
 "Running" panel keeps progress visible from any page, and results arrive as colour-coded notifications
 (success, info, warning, error) with a details or follow-up button when useful.
-Shortcuts: F5 refresh/scan, Ctrl+F search, Esc cancel, Ctrl+1–9 jump between pages.
+Shortcuts: Ctrl+K search everything, Alt+Left/Right or the mouse side buttons go back/forward, F5 refresh/scan, Ctrl+F search on a page, Esc asks before stopping a task, Ctrl+1–9 jump between pages. The **Tasks** button (top right) lists everything running or finished.
 
 ## Safety by design
 

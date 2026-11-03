@@ -14,9 +14,13 @@ to click. Avoid code talk and jargon; if a technical term is unavoidable, say wh
   `version_info.txt` (the file details Windows shows for the exe). The `v1.1.0` in README.md is just text.
 - Dependencies: `requirements.txt` (loose, for running from source) and `requirements-ci.txt` (exact versions
   used by the cloud builds; update both together when upgrading a library).
-- Tests: `tests/test_smoke.py` (every module loads, the main window builds, version format) and
+- Tests: `tests/test_smoke.py` (every module loads, the main window builds, version format),
   `tests/test_features.py` (Windows-version tailoring, tweak/preset/maintenance/bloat catalogues, progress
-  parsing, One-click optimize runner, health score, toasts).
+  parsing, One-click optimize runner, health score, toasts), `tests/test_workflows.py` (diagnostics rules,
+  repair verification, setup profiles/plan/journal/resume, sessions, reports, security heuristics) and
+  `tests/test_navigation_ui.py` (Back/Forward incl. mouse side buttons, tasks surviving page switches, palette,
+  New PC Setup never repeating work).
+- `IMPLEMENTATION_STATUS.md` tracks what is done / needs Windows testing / not started for the technician suite.
 - `tests/test_windows_roundtrip.py` CHANGES WINDOWS SETTINGS (applies and undoes every registry tweak). It only
   runs when `REMEDY_TWEAK_ROUNDTRIP=1`, which only the CI and Release workflows set on their throwaway Windows
   machine. Never set it on a real PC.
@@ -32,6 +36,14 @@ to click. Avoid code talk and jargon; if a technical term is unavoidable, say wh
   every tweak and maintenance action has a `target` ("", "win10", "win11") and tweaks may have a
   `laptop_note`. Every tweak also needs an entry in `tweaks.IMPACT` (area, short gain, what you'll notice,
   trade-off; keep estimates honest); a test enforces it. `optimize.py` is One-click optimize. `tweaks.PRESETS` holds the preset lists.
+- Technician suite engine: `diagnostics.py` (providers -> evidence -> findings, thresholds in `THRESHOLDS`),
+  `repair.py` (approved repairs + before/after verification), `provision.py` (setup profiles, plan, deploy
+  journal, resume, verify), `sessions.py` (local session JSON), `report.py` (HTML/JSON with redaction),
+  `security.py` (lead-only startup heuristics). Diagnosis never changes the PC; nothing runs without review.
+- Navigation: always use `main.navigate(key, params)`; params restore sub-views via `page.open_route(params)`
+  and `page.route_label(params)`. NAV keys are stable (old `setup` = App Installer, wizard is `newpc`).
+  `BasePage.run` also registers jobs in the Task Center (`main.tasks`). Use `ResponsiveGrid` /
+  `make_scrollable()` so pages work at the 980x640 minimum.
 - `remedy/ui/` = the pages. Shared pieces: `notify.py` (toasts: `main.notify(kind, title, body, action=...)`),
   `dialogs.py` (themed confirm/info/error), `widgets.py` (`BasePage.run(...)` gives every background task a
   progress strip, a sidebar "Running" entry and error toasts; pass `summary=` for the green "Done" line;
@@ -48,7 +60,7 @@ python3.12 -m venv .venv                                                       #
 .venv/bin/pip install -r requirements-ci.txt                                   # ~2 min (PySide6 is large)
 ```
 
-Tests (~1 s, 57 passed; 52 Windows-only tests are skipped on Linux):
+Tests (~4 s, 105 passed; 52 Windows-only tests are skipped on Linux):
 
 ```bash
 .venv/bin/python -m pytest -q
