@@ -1,5 +1,5 @@
 # Remedy: PC optimization suite
-**by Noisewater Labs** · Windows 10 & 11 · v1.3.0
+**by Noisewater Labs** · Windows 10 & 11 · v1.3.1
 
 Remedy cleans, speeds up, repairs and sets up Windows PCs from one dark, modern app.
 

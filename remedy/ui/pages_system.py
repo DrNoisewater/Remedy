@@ -154,7 +154,7 @@ class DashboardPage(BasePage):
         self.root.addLayout(chips)
         self.root.addWidget(self._hero())
         self.cpu = StatTile("CPU", spark_color=theme.ACCENT)
-        self.mem = StatTile("Memory", spark_color=theme.ACCENT2)
+        self.mem = StatTile("Memory", spark_color=theme.MUTED)
         self.disk = StatTile("System drive", bar=True)
         self.up = StatTile("Uptime")
         self.root.addWidget(ResponsiveGrid((self.cpu, self.mem, self.disk, self.up), 170))
@@ -221,13 +221,13 @@ class DashboardPage(BasePage):
         hl = QVBoxLayout(hero)
         hl.setContentsMargins(20, 16, 20, 16)
         hl.setSpacing(8)
-        hl.addWidget(label("TECHNICIAN WORKFLOWS", "kicker"))
+        hl.addWidget(label("Technician workflows", "kicker"))
         hl.addWidget(label("Fix a problem PC, or prepare a new one with a reusable profile.", "muted", wrap=True))
         hl.addStretch(1)
-        hl.addWidget(button("Diagnose && Repair", "primary", lambda: self.main.navigate("diagnose")))
+        hl.addWidget(button("Diagnose && Repair", "", lambda: self.main.navigate("diagnose")))
         hl.addWidget(button("Set Up a New PC", "", lambda: self.main.navigate("newpc")))
         for card in (diag, sec, hero):
-            card.setMinimumHeight(178)      # wrapped text doesn't report its height to grid layouts
+            card.setMinimumHeight(192)      # wrapped text doesn't report its height to grid layouts
         return ResponsiveGrid((diag, sec, hero), 260)
 
     def refresh_summary(self):
@@ -320,7 +320,7 @@ class DashboardPage(BasePage):
                                   "muted", wrap=True))
         row = QHBoxLayout()
         row.addWidget(button("Run health check", "", self.run_check))
-        row.addWidget(button("One-click optimize", "primary", self.optimize))
+        row.addWidget(button("One-click optimize", "", self.optimize))
         row.addStretch(1)
         self.recs.addLayout(row)
         self.recs.addStretch(1)
@@ -586,7 +586,7 @@ class SettingsPage(BasePage):
         lim.addWidget(spin)
         lim.addStretch(1)
         prefs.body.addLayout(lim)
-        prefs.body.addWidget(label("PRIVACY & TECHNICIAN SESSIONS", "cardtitle"))
+        prefs.body.addWidget(label("Privacy & technician sessions", "cardtitle"))
         priv = QCheckBox("Privacy mode: redact computer and user names in exported reports (recommended)")
         priv.setChecked(bool(settings.get("privacy_mode")))
         priv.toggled.connect(lambda v: settings.set("privacy_mode", v))

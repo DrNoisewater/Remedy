@@ -48,6 +48,11 @@ to click. Avoid code talk and jargon; if a technical term is unavoidable, say wh
   `dialogs.py` (themed confirm/info/error), `widgets.py` (`BasePage.run(...)` gives every background task a
   progress strip, a sidebar "Running" entry and error toasts; pass `summary=` for the green "Done" line;
   `attach_empty` for empty-list messages), `optimize_wizard.py`.
+- **Unslop design pass (trial, may be undone for the next version):** commit `4ff36ac` "Try an unslop design
+  pass (heydamir/unslop)" changed only the look (solid logo, sentence-case labels, one teal button per screen,
+  no gradients/glows, 4px spacing) in `theme.py`, `app.py` and `ui/*.py`. To go back to the old look:
+  `git revert 4ff36ac` on a new branch, run the tests, open a pull request. Before/after pictures are in
+  `unslop-preview/` (safe to delete).
 - `build/`, `dist/` and `__pycache__` folders are old build leftovers committed to the repo; builds overwrite them.
 
 ## Commands that were run and worked (Linux cloud container, Nov 2026)
