@@ -41,17 +41,19 @@ jobs:
           python -m PyInstaller --noconfirm --clean --onefile --windowed --uac-admin --name Remedy \
             --icon remedy.ico --version-file version_info.txt --collect-submodules remedy main.py
 
-      - name: Package zip
+      - name: Work out the download name
         shell: pwsh
         run: |
           $version = (python -c "from remedy.core.utils import APP_VERSION; print(APP_VERSION)").Trim()
-          $zip = "Remedy-v$version-win-x64.zip"
-          Compress-Archive -Path dist/Remedy.exe -DestinationPath $zip -Force
+          $zip = "Remedy-v$version-win-x64"
           "ZIP_NAME=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
+      # GitHub always wraps a downloaded artifact in a zip, so upload the exe itself:
+      # the download is then a zip with Remedy.exe at the top, just like the release.
       - name: Keep the test build for 7 days
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ env.ZIP_NAME }}
-          path: ${{ env.ZIP_NAME }}
+          path: dist/Remedy.exe
           retention-days: 7
+          if-no-files-found: error
