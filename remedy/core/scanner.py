@@ -45,6 +45,12 @@ def _norm(path: str) -> str:
     return os.path.normcase(os.path.abspath(path))
 
 
+# Folders where identical files are normal and removing a "duplicate" can break an app, a game or a project.
+APP_FOLDER_NAMES = {"program files", "program files (x86)", "programdata", "appdata", "windowsapps",
+                    "steamapps", "epic games", "node_modules", ".git", ".venv", "venv", "site-packages",
+                    "__pycache__", ".gradle", ".m2", ".nuget"}
+
+
 def _system_skip_paths() -> set:
     if IS_WINDOWS:
         return {_norm(os.environ.get("SystemRoot", r"C:\Windows"))}
@@ -88,7 +94,7 @@ def estimate_pct(seen: int, expected: int, lo: int = 0, hi: int = 99) -> int:
     return lo + int((hi - lo) * min(1.0, seen / expected))
 
 
-def walk_entries(roots, ctx=None, skip_system=True, exclusions=None, span=(0, 99)):
+def walk_entries(roots, ctx=None, skip_system=True, exclusions=None, span=(0, 99), skip_names=()):
     """Yield (path, size, mtime) for every regular file under roots.
 
     Never follows symlinks/junctions, skips cloud placeholders that use no disk space,
@@ -118,6 +124,8 @@ def walk_entries(roots, ctx=None, skip_system=True, exclusions=None, span=(0, 99
                         continue
                     if entry.is_dir(follow_symlinks=False):
                         if skip_system and entry.name.lower() in _SKIP_DIR_NAMES:
+                            continue
+                        if skip_names and entry.name.lower() in skip_names:
                             continue
                         n = _norm(entry.path)
                         if n in excl or n in skip_paths:
@@ -182,9 +190,12 @@ def _hash_file(path, size, partial, ctx=None):
     return h.hexdigest()
 
 
-def find_duplicates(ctx, roots, min_bytes) -> dict:
+def find_duplicates(ctx, roots, min_bytes, include_app_folders=False) -> dict:
+    """Identical files under roots. App, game and developer folders are skipped unless include_app_folders,
+    because removing one copy there can break the program that uses it."""
     by_size = defaultdict(list)
-    for path, size, mtime in walk_entries(roots, ctx, skip_system=True, span=(0, 30)):
+    skip = () if include_app_folders else APP_FOLDER_NAMES
+    for path, size, mtime in walk_entries(roots, ctx, skip_system=True, span=(0, 30), skip_names=skip):
         if size >= max(1, min_bytes):
             by_size[size].append((path, mtime))
     candidates = {s: f for s, f in by_size.items() if len(f) > 1}

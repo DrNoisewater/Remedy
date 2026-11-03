@@ -1,4 +1,6 @@
 """Checks for the tailored-to-this-PC logic, catalogues, progress parsing, toasts and One-click optimize."""
+import os
+
 import pytest
 
 from remedy.core import maintenance, optimize, osinfo, programs, scanner, tweaks
@@ -207,3 +209,72 @@ def test_toast_kinds_fall_back_to_info(qapp):
     card = ToastManager(win).show("nonsense", "Hello")
     assert card.kind == "info"
     win.close()
+
+
+# ---------------------------------------------------------------- safety guards
+def test_essential_services_are_protected():
+    from remedy.core import services
+    assert services.protection("Dhcp", "disabled")
+    assert services.protection("audiosrv", "stop")                      # case doesn't matter
+    assert services.protection("Dnscache", "manual", "automatic")
+    assert not services.protection("Dhcp", "start") and not services.protection("Dhcp", "restart")
+    assert not services.protection("Dhcp", "automatic")
+    assert not services.protection("Fax", "disabled")
+    for t in tweaks.build_tweaks():                                      # our own tweaks never touch them
+        for name in getattr(t, "service_names", []):
+            assert name not in services.ESSENTIAL, t.id
+
+
+def test_protected_store_apps():
+    assert programs.appx_protection("Microsoft.WindowsStore")
+    assert programs.appx_protection("Microsoft.DesktopAppInstaller")
+    assert programs.appx_protection("windows.immersivecontrolpanel")
+    assert programs.appx_protection("RealtekSemiconductorCorp.RealtekAudioControl")
+    assert not programs.appx_protection("king.com.CandyCrushSaga")
+    assert not programs.appx_protection("Microsoft.Windows.DevHome")      # known bloat is never protected
+    for name in programs.KNOWN_BLOAT:
+        assert not programs.appx_protection(name), name
+    with pytest.raises(PermissionError):
+        programs.remove_appx("Microsoft.WindowsStore_22401.1400.6.0_x64__8wekyb3d8bbwe")
+
+
+def test_recycle_bin_is_never_emptied_by_default():
+    from remedy.core import junk
+    rb = next(c for c in junk.build_categories() if c.special == "recycle")
+    assert rb.default is False
+
+
+def test_one_click_never_empties_the_recycle_bin(monkeypatch):
+    from remedy.core import junk
+    from remedy.core.junk import JunkCategory
+    cats = [JunkCategory("tmp", "Temp", "", default=True),
+            JunkCategory("recycle_bin", "Recycle Bin", "", special="recycle", default=True)]
+    monkeypatch.setattr(junk, "build_categories", lambda: cats)
+    cleaned = []
+    monkeypatch.setattr(junk, "scan_category", lambda c, ctx=None: c)
+    monkeypatch.setattr(junk, "clean_category", lambda c, ctx=None: (cleaned.append(c.key), (0, 0, 0))[1])
+    optimize.step_junk(_Ctx(), lambda *_: None, admin=True)
+    assert cleaned == ["tmp"]
+
+
+def test_duplicates_skip_app_folders(tmp_path):
+    for folder in ("Photos", "Photos copy", "AppData/Local/SomeApp", "Program Files/Game", "node_modules/x"):
+        (tmp_path / folder).mkdir(parents=True)
+        (tmp_path / folder / "same.bin").write_bytes(b"x" * 5000)
+    res = scanner.find_duplicates(None, [str(tmp_path)], 1)
+    paths = {os.path.relpath(f["path"], tmp_path).split(os.sep)[0] for g in res["groups"] for f in g["files"]}
+    assert paths == {"Photos", "Photos copy"}
+    res_all = scanner.find_duplicates(None, [str(tmp_path)], 1, include_app_folders=True)
+    assert sum(len(g["files"]) for g in res_all["groups"]) == 5
+
+
+def test_restore_point_runs_as_its_own_batch(monkeypatch):
+    monkeypatch.setitem(optimize.RUNNERS, "junk", lambda ctx, report: "ok")
+    ctx = _Ctx()
+    optimize.run(ctx, ["junk"], offset=1, total=2)
+    assert ctx.lines[-1][1] == 100 and ctx.lines[0][1] == 50
+
+
+def test_restore_script_puts_the_frequency_setting_back():
+    script = maintenance.RESTORE_POINT_SCRIPT
+    assert "finally" in script and "Remove-ItemProperty" in script and "$old" in script

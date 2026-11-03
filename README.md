@@ -55,6 +55,18 @@ Shortcuts: F5 refresh/scan, Ctrl+F search, Esc cancel, Ctrl+1–9 jump between p
 - Symlinks/junctions are never followed; OneDrive cloud-only placeholders are skipped.
 - Tweaks back up original values to `%LOCALAPPDATA%\Noisewater Labs\Remedy\tweak_backup.json` and can create a
   **restore point** first (on by default).
+- **Restore point first, or stop:** if Windows can't create the restore point before tweaks or One-click optimize,
+  Remedy stops and asks instead of carrying on without a safety net. The temporary Windows setting it uses to allow
+  the restore point is put back afterwards.
+- **The Recycle Bin is never emptied unless you tick it**, and One-click optimize always leaves it alone.
+- **Essential Windows services** (networking, Wi-Fi, sound, sign-in, updates, security and core services) can't be
+  stopped or disabled from Remedy; the Services page marks them with a lock and says why.
+- **Protected apps:** the Microsoft Store, App Installer, Windows Security, Windows components, media codecs and
+  your PC maker's sound/graphics/touchpad panels can't be removed from the Bloatware page.
+- **Duplicates skip app and game folders** (Program Files, AppData, Steam, developer folders) unless you opt in,
+  because removing one copy there can break a program.
+- **Tested on real Windows:** every pull request applies and undoes every registry tweak on a throwaway Windows
+  machine and checks the original values come back exactly.
 - Every action is logged to `%LOCALAPPDATA%\Noisewater Labs\Remedy\remedy.log`.
 
 ## Project layout

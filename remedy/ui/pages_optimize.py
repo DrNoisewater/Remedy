@@ -205,6 +205,8 @@ class TweaksPage(BasePage):
         pm = QMenu(presets)
         pm.addAction("Recommended for this PC", self._recommended)
         pm.addSeparator()
+        pm.addAction("Untick everything (undo all Remedy tweaks)", self._untick_all)
+        pm.addSeparator()
         for name in tweaks.PRESETS:
             if name == "Windows 11 clean-up" and not self.os.is_win11:
                 continue
@@ -410,6 +412,22 @@ class TweaksPage(BasePage):
             self.main.notify("success", f"{label_text}: already set", "Everything in this set is already ticked "
                                                                       "or not available on this PC.")
 
+    def _untick_all(self):
+        """Untick every tweak, so Apply changes puts every original setting back."""
+        n = 0
+        self.tree.blockSignals(True)
+        for it in self._children():
+            if it.flags() & Qt.ItemIsEnabled and it.checkState(0) == Qt.Checked:
+                it.setCheckState(0, Qt.Unchecked)
+                n += 1
+        self.tree.blockSignals(False)
+        self._refresh_status_column()
+        if n:
+            self.main.notify("info", f"Unticked {n} tweak{'s' if n != 1 else ''}",
+                             "Press Apply changes to put the original settings back.")
+        else:
+            self.main.notify("success", "Nothing to undo", "No Remedy tweaks are on.")
+
     def _recommended(self):
         """Tick every tweak recommended for this PC (already-applied ones stay ticked)."""
         self._tick([t.id for t in self.tweaks if t.suggested(self.os)], "Recommended")
@@ -443,8 +461,33 @@ class TweaksPage(BasePage):
         if not confirm(self, f"Apply changes: {' and '.join(lines)}?", text, "Apply changes", bullets=bullets):
             return
         self._restarts = {t.restart for t in to_apply + to_revert} - {""}
-        self.run(_apply, to_apply, to_revert, rp, progress=self.progress, text="Applying tweaks…", cancellable=False,
-                 on_done=self._done, summary=lambda r: f"{sum(1 for x in r if x[1])} change(s) applied")
+
+        def apply_now():
+            self.run(_apply, to_apply, to_revert, False, progress=self.progress, text="Applying tweaks…",
+                     cancellable=False, on_done=self._done,
+                     summary=lambda r: f"{sum(1 for x in r if x[1])} change(s) applied")
+
+        if not rp:
+            apply_now()
+            return
+
+        def after_restore(res):
+            ok, msg = res
+            if ok:
+                apply_now()
+                return
+            why = (msg or "unknown error").strip().splitlines()[-1] if (msg or "").strip() else "unknown error"
+            if confirm(self, "Couldn't create a restore point",
+                       f"Windows said: {why}. Each tweak still saves its original setting, so you can undo it here "
+                       "later, but there won't be a System Restore snapshot.", "Apply without it"):
+                apply_now()
+            else:
+                self.main.notify("info", "Nothing was changed", "Turn on System Protection for drive C: in Windows "
+                                 "settings, then try again.")
+
+        self.run(lambda ctx: maintenance.create_restore_point(), progress=self.progress,
+                 text="Creating a restore point first (can take a minute)…", cancellable=False,
+                 on_done=after_restore, summary=lambda r: "Restore point created" if r[0] else "Restore point failed")
 
     def _done(self, results):
         fails = [(n, m) for n, ok, m in results if not ok]
@@ -522,10 +565,15 @@ class ServicesPage(BasePage):
         self.tree.setSortingEnabled(False)
         self.tree.clear()
         for s in items:
-            r = SortItem([s["display"], s["status"].capitalize(), s["start"].capitalize(), s["note"], s["name"]])
+            essential = services.ESSENTIAL.get(s["name"], "")
+            note = f"🔒 Essential: {essential}" if essential else s["note"]
+            r = SortItem([s["display"], s["status"].capitalize(), s["start"].capitalize(), note, s["name"]])
             r.setData(0, OBJ_ROLE, s)
             r.setForeground(1, QColor(theme.OK if s["status"] == "running" else theme.MUTED))
-            if s["note"]:
+            if essential:
+                r.setForeground(3, QColor(theme.MUTED))
+                r.setToolTip(3, "Remedy won't stop or disable this service. " + essential + ".")
+            elif s["note"]:
                 r.setForeground(3, QColor(theme.WARN if "keep" in s["note"].lower() or "needed" in s["note"].lower()
                                           else theme.ACCENT))
             self.tree.addTopLevelItem(r)
@@ -561,14 +609,29 @@ class ServicesPage(BasePage):
         if not sel:
             self.main.notify("info", "Select a service first")
             return
-        if action != "start" and not confirm(self, "Services", f"{action.capitalize()} {len(sel)} service(s)?",
-                                             action.capitalize()):
+        if self._blocked(sel, action):
+            return
+        if action != "start" and not confirm(self, f"{action.capitalize()} {len(sel)} service(s)?",
+                                             "Apps that rely on them may stop working until they're started again.",
+                                             action.capitalize(), bullets=[x["display"] for x in sel]):
             return
         self._batch(lambda s: services.control(s["name"], action))
+
+    def _blocked(self, sel, action) -> bool:
+        """Refuse to stop/disable essential services, and say why in plain words."""
+        blocked = [(s["display"], services.protection(s["name"], action, s["start"])) for s in sel]
+        blocked = [(n, why) for n, why in blocked if why]
+        if blocked:
+            name, why = blocked[0]
+            more = f" (and {len(blocked) - 1} more)" if len(blocked) > 1 else ""
+            self.main.notify("error", "Blocked to protect Windows", f"{name}{more}: {why}.")
+        return bool(blocked)
 
     def _start_type(self, value):
         sel = self._selected()
         if not sel:
+            return
+        if self._blocked(sel, value):
             return
         if value == "disabled":
             vital = [s["display"] for s in sel if "keep" in s["note"].lower() or "needed" in s["note"].lower()]

@@ -169,8 +169,41 @@ class OptimizeWizard(QDialog):
         self._t0 = time.monotonic()
         self._token = self.main.activity.start("dashboard", "One-click optimize", "Starting…") \
             if hasattr(self.main, "activity") else None
-        self.worker = start_task(optimize.run, keys, on_done=self._done, on_error=self._failed,
-                                 on_progress=self._progress)
+        self.keys = keys
+        self.results_so_far = []
+        if keys[0] == "restore":           # safety net first, on its own, so a failure can stop everything else
+            self.worker = start_task(optimize.run, ["restore"], 0, len(keys), on_done=self._restore_done,
+                                     on_error=self._failed, on_progress=self._progress)
+        else:
+            self._run_rest(keys, 0)
+
+    def _run_rest(self, keys, offset):
+        self.worker = start_task(optimize.run, keys, offset, len(self.keys), on_done=self._done,
+                                 on_error=self._failed, on_progress=self._progress)
+
+    def _restore_done(self, results):
+        self.worker = None
+        self.results_so_far = list(results)
+        rest = self.keys[1:]
+        if results and results[0][1]:
+            if rest:
+                self._run_rest(rest, 1)
+            else:
+                self._done([])
+            return
+        why = results[0][2] if results else "unknown error"
+        from .dialogs import confirm
+        go_on = rest and confirm(
+            self, "Couldn't create a restore point",
+            f"Windows said: {why}. Without it you can't roll everything back from System Restore. Tweaks can "
+            "still be undone one by one on the Tweaks page, but cleaned junk files can't be brought back.",
+            "Continue without it")
+        if go_on:
+            self._run_rest(rest, 1)
+            return
+        for k in rest:
+            self.rows[k].set_state("skip")
+        self._done([], stopped=True)
 
     def _progress(self, text, pct):
         parsed = parse_line(text)
@@ -196,8 +229,19 @@ class OptimizeWizard(QDialog):
         self.btn_start.setText("Close")
         self.btn_close.hide()
 
-    def _done(self, results):
+    def _done(self, results, stopped=False):
         import time
+        results = self.results_so_far + list(results)
+        self.results_so_far = []
+        if stopped:
+            self.results = results or [("restore", False, "")]
+            self._finish_ui()
+            self.overall_text.setText("Stopped before changing anything, because there's no restore point.")
+            if self._token is not None:
+                self.main.activity.finish(self._token, False, "Stopped: no restore point")
+            self.main.notify("warning", "Nothing was changed", "Remedy stopped because the restore point couldn't "
+                             "be created. Check that System Protection is on, then try again.")
+            return
         self.results = results or [("none", True, "")]
         self._finish_ui()
         self.bar.setValue(100)

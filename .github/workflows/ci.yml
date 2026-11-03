@@ -34,6 +34,8 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -v
+        env:
+          REMEDY_TWEAK_ROUNDTRIP: "1"   # safe here: this Windows machine is thrown away after the run
 
       - name: Build Remedy.exe (release build)
         run: |

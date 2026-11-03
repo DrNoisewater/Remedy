@@ -28,7 +28,8 @@ def plan(info=None, admin=None) -> list:
              default=True, available=win and admin,
              reason="Windows only" if not win else "Needs administrator"),
         Step("junk", "Clean junk files",
-             "Temp files, caches, crash dumps and the Recycle Bin. Only the safe, default categories."),
+             "Temp files, caches and crash dumps: only the safe, default categories. Your Recycle Bin is "
+             "left alone, so nothing you deleted is lost for good."),
         Step("tweaks", f"Apply recommended tweaks for {info.short()}",
              "Speed, privacy and quality-of-life settings picked for this PC"
              + (" (battery-hungry ones skipped on laptops)." if info.laptop else ".")
@@ -59,7 +60,8 @@ def step_restore(ctx, report) -> str:
 
 def step_junk(ctx, report, admin=None) -> str:
     admin = is_admin() if admin is None else admin
-    cats = [c for c in junk.build_categories() if c.default and (admin or not c.admin)]
+    cats = [c for c in junk.build_categories()
+            if c.default and c.special != "recycle" and (admin or not c.admin)]   # never empty the Recycle Bin here
     found = 0
     for i, c in enumerate(cats):
         _check(ctx)
@@ -145,12 +147,14 @@ def step_dns(ctx, report) -> str:
 RUNNERS = {"restore": step_restore, "junk": step_junk, "tweaks": step_tweaks, "bloat": step_bloat, "dns": step_dns}
 
 
-def run(ctx, keys: list) -> list:
+def run(ctx, keys: list, offset: int = 0, total: int = 0) -> list:
     """Run the chosen steps in order. Progress lines: "@key|run|text" / "@key|ok|summary" / "@key|fail|why".
-    Returns [(key, ok, summary)]. A failed step doesn't stop the others; Cancel does."""
+    Returns [(key, ok, summary)]. A failed step doesn't stop the others; Cancel does.
+    offset/total place this batch inside a bigger run, so the overall percentage keeps climbing
+    (the restore point runs as its own batch, so the user can decide what to do if it fails)."""
     results = []
-    n = max(1, len(keys))
-    for i, key in enumerate(keys):
+    n = max(1, total or len(keys))
+    for i, key in enumerate(keys, start=offset):
         _check(ctx)
 
         def report(text, pct, _i=i, _key=key):

@@ -275,11 +275,18 @@ class BloatwarePage(BasePage):
                 else "Not on our list"
             r = SortItem([a["name"].split(".")[-1] if not a["label"] else a["label"], verdict,
                           a["name"], a["version"]])
-            r.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable)
-            r.setCheckState(0, Qt.Unchecked)
+            protected = a.get("protected", "")
+            if protected:
+                r.setText(1, "🔒 Protected: " + protected.split(":")[0])
+                r.setToolTip(1, f"Remedy won't remove this. {protected}.")
+                r.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)      # no checkbox
+            else:
+                r.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable)
+                r.setCheckState(0, Qt.Unchecked)
             r.setData(0, OBJ_ROLE, a)
             r.setData(0, UR, (0 if a["recommended"] else 1 if a["known"] else 2, a["name"].lower()))
-            r.setForeground(1, QColor(theme.ACCENT if a["recommended"] else theme.WARN if a["known"] else theme.MUTED))
+            r.setForeground(1, QColor(theme.MUTED if protected else theme.ACCENT if a["recommended"]
+                                      else theme.WARN if a["known"] else theme.MUTED))
             self.tree.addTopLevelItem(r)
         self.tree.setSortingEnabled(True)
         self.tree.sortItems(0, Qt.AscendingOrder)
@@ -314,7 +321,8 @@ class BloatwarePage(BasePage):
 
     def remove(self):
         rows = [self.tree.topLevelItem(i) for i in range(self.tree.topLevelItemCount())
-                if self.tree.topLevelItem(i).checkState(0) == Qt.Checked]
+                if self.tree.topLevelItem(i).checkState(0) == Qt.Checked
+                and not self.tree.topLevelItem(i).data(0, OBJ_ROLE).get("protected")]
         if not rows:
             self.main.notify("info", "Nothing ticked", "Tick apps to remove, or use Select recommended.")
             return
