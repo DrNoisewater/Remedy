@@ -10,7 +10,7 @@ from PySide6.QtCore import QEasingCurve, QObject, QRectF, Qt, QThread, QTimer, S
 from PySide6.QtGui import (QBrush, QColor, QFont, QFontDatabase, QIcon, QLinearGradient, QPainter,
                            QPainterPath, QPen, QPixmap)
 from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QFileDialog, QFrame, QHBoxLayout, QHeaderView,
-                               QLabel, QMessageBox, QPlainTextEdit, QProgressBar, QPushButton,
+                               QLabel, QPlainTextEdit, QProgressBar, QPushButton,
                                QSizePolicy, QStyledItemDelegate, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
                                QWidget)
 
@@ -164,35 +164,19 @@ def app_icon() -> QIcon:
 
 
 # --------------------------------------------------------------------------- dialogs
-def confirm(parent, title: str, text: str, ok_text: str = "Continue") -> bool:
-    box = QMessageBox(parent)
-    box.setWindowTitle(title)
-    box.setText(text)
-    box.setIcon(QMessageBox.Warning)
-    yes = box.addButton(ok_text, QMessageBox.AcceptRole)
-    box.addButton("Cancel", QMessageBox.RejectRole)
-    box.exec()
-    return box.clickedButton() is yes
+def confirm(parent, title: str, text: str, ok_text: str = "Continue", danger: bool = False, bullets=None) -> bool:
+    from .dialogs import confirm as _confirm
+    return _confirm(parent, title, text, ok_text, danger, bullets)
 
 
-def info(parent, title: str, text: str, detail: str = "") -> None:
-    box = QMessageBox(parent)
-    box.setWindowTitle(title)
-    box.setText(text)
-    if detail:
-        box.setDetailedText(detail)
-    box.setIcon(QMessageBox.Information)
-    box.exec()
+def info(parent, title: str, text: str, detail: str = "", bullets=None, kind: str = "info") -> None:
+    from .dialogs import info as _info
+    _info(parent, title, text, detail, bullets, kind)
 
 
 def error(parent, title: str, text: str, detail: str = "") -> None:
-    box = QMessageBox(parent)
-    box.setWindowTitle(title)
-    box.setText(text)
-    if detail:
-        box.setDetailedText(detail)
-    box.setIcon(QMessageBox.Critical)
-    box.exec()
+    from .dialogs import error as _error
+    _error(parent, title, text, detail)
 
 
 def error_report(errors, limit: int = 200) -> str:
@@ -517,44 +501,239 @@ def make_tree(headers, multi: bool = True, sortable: bool = True, stretch_col: i
     return t
 
 
+def attach_empty(tree: QTreeWidget, text: str) -> QLabel:
+    """Friendly message in the middle of an empty list ("Press Scan to…"). Returns the label so text can change."""
+    msg = QLabel(text, tree.viewport())
+    msg.setObjectName("empty")
+    msg.setAlignment(Qt.AlignCenter)
+    msg.setWordWrap(True)
+    msg.setAttribute(Qt.WA_TransparentForMouseEvents)
+
+    def sync(*_):
+        try:
+            vp = tree.viewport()
+            msg.setGeometry(40, 0, max(100, vp.width() - 80), max(60, vp.height()))
+            msg.setVisible(tree.topLevelItemCount() == 0)
+        except RuntimeError:  # the list was closed before this ran
+            pass
+
+    model = tree.model()
+    for sig in (model.rowsInserted, model.rowsRemoved, model.modelReset, model.layoutChanged):
+        sig.connect(sync)
+    old_resize = tree.viewport().resizeEvent
+
+    def on_resize(e):
+        old_resize(e)
+        sync()
+    tree.viewport().resizeEvent = on_resize
+    QTimer.singleShot(0, msg, sync)
+    return msg
+
+
 def size_widths(tree: QTreeWidget, widths: dict) -> None:
     for col, w in widths.items():
         tree.setColumnWidth(col, w)
 
 
-class ProgressRow(QWidget):
+def fmt_eta(seconds: float) -> str:
+    seconds = int(max(0, seconds))
+    if seconds < 60:
+        return f"{seconds}s"
+    m, s = divmod(seconds, 60)
+    if m < 60:
+        return f"{m}m {s:02d}s"
+    h, m = divmod(m, 60)
+    return f"{h}h {m:02d}m"
+
+
+class ProgressRow(QFrame):
+    """Task progress strip: what's happening, percent, elapsed / time left, a bar and Cancel.
+
+    Shows a short green "Done in 12s" confirmation when the task finishes.
+    """
+
     cancel_requested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setObjectName("progressrow")
         lay = QHBoxLayout(self)
-        lay.setContentsMargins(0, 0, 0, 0)
-        self.text = label("", "muted")
+        lay.setContentsMargins(14, 8, 8, 8)
+        lay.setSpacing(12)
+        self.dot = label("●")
+        self.dot.setStyleSheet(f"color: {theme.ACCENT}; font-size: 9pt;")
+        self.text = label("", "")
         self.text.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.pct = label("", "")
+        self.pct.setStyleSheet("font-weight: 700;")
+        self.pct.setMinimumWidth(40)
+        self.pct.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.time = label("", "muted")
+        self.time.setMinimumWidth(120)
+        self.time.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.bar = QProgressBar()
-        self.bar.setFixedWidth(220)
-        self.cancel = button("Cancel", "ghost", self.cancel_requested.emit)
+        self.bar.setFixedWidth(240)
+        self.cancel = button("Cancel", "ghost", self.cancel_requested.emit, "Stop this task (Esc)")
+        lay.addWidget(self.dot)
         lay.addWidget(self.text, 1)
+        lay.addWidget(self.pct)
+        lay.addWidget(self.time)
         lay.addWidget(self.bar)
         lay.addWidget(self.cancel)
+        self._started = 0.0
+        self._pct = -1
+        self.clock = QTimer(self)
+        self.clock.setInterval(500)
+        self.clock.timeout.connect(self._tick)
+        self.hide_timer = QTimer(self)
+        self.hide_timer.setSingleShot(True)
+        self.hide_timer.timeout.connect(self.hide)
         self.hide()
 
+    def _set_state(self, state: str):
+        if self.property("state") != state:
+            self.setProperty("state", state)
+            self.style().unpolish(self)
+            self.style().polish(self)
+
     def start(self, text: str, cancellable: bool = True):
+        self.hide_timer.stop()
+        self._set_state("running")
+        self.dot.setText("●")
+        self.dot.setStyleSheet(f"color: {theme.ACCENT}; font-size: 9pt;")
         self.text.setText(text)
+        self.pct.setText("")
+        self.time.setText("")
         self.bar.setRange(0, 0)
+        self.bar.show()
         self.cancel.setVisible(cancellable)
+        self._started = time.monotonic()
+        self._pct = -1
+        self.clock.start()
         self.show()
 
     def update_progress(self, text: str, pct: int = -1):
         if text:
             self.text.setText(text)
+            self.text.setToolTip(text)
         if pct >= 0:
+            pct = min(100, int(pct))
             if self.bar.maximum() == 0:
                 self.bar.setRange(0, 100)
-            self.bar.setValue(min(100, pct))
+            self.bar.setValue(pct)
+            self._pct = pct
+            self.pct.setText(f"{pct}%")
+        self._tick()
 
-    def stop(self):
+    def _tick(self):
+        if not self._started:
+            return
+        elapsed = time.monotonic() - self._started
+        parts = [fmt_eta(elapsed)]
+        if 3 <= self._pct < 100 and elapsed > 3:
+            parts.append(f"~{fmt_eta(elapsed * (100 - self._pct) / self._pct)} left")
+        self.time.setText(" · ".join(parts))
+
+    def stop(self, ok: bool = True, summary: str = ""):
+        """Finish: flash a short result, then tuck away."""
+        self.clock.stop()
+        elapsed = time.monotonic() - self._started if self._started else getattr(self, "_elapsed", 0)
+        self._elapsed = elapsed
+        self._started = 0.0
+        self.bar.hide()
+        self.cancel.hide()
+        self.pct.setText("")
+        color = theme.OK if ok else theme.WARN
+        self._set_state("done" if ok else "stopped")
+        self.dot.setText("✓" if ok else "■")
+        self.dot.setStyleSheet(f"color: {color}; font-size: 10pt; font-weight: 700;")
+        self.text.setText(summary or ("Done" if ok else "Stopped"))
+        self.time.setText(f"in {fmt_eta(elapsed)}" if ok and elapsed >= 1 else "")
+        self.hide_timer.start(2600 if ok else 3500)
+
+
+class ActivityPanel(QFrame):
+    """Sidebar list of everything currently running, so progress stays visible from any page."""
+
+    def __init__(self, navigate, parent=None):
+        super().__init__(parent)
+        self.setObjectName("activity")
+        self.navigate = navigate
+        self.lay = QVBoxLayout(self)
+        self.lay.setContentsMargins(12, 10, 12, 10)
+        self.lay.setSpacing(8)
+        head = label("RUNNING", "cardtitle")
+        self.lay.addWidget(head)
+        self.entries: dict = {}
+        self._next = 0
         self.hide()
+
+    def start(self, key: str, title: str, text: str) -> int:
+        self._next += 1
+        token = self._next
+        box = QFrame()
+        box.setObjectName("activityitem")
+        box.setCursor(Qt.PointingHandCursor)
+        box.setToolTip(f"Go to {title}")
+        bl = QVBoxLayout(box)
+        bl.setContentsMargins(0, 0, 0, 0)
+        bl.setSpacing(3)
+        top = QHBoxLayout()
+        name = label(title)
+        name.setStyleSheet("font-weight: 600; font-size: 9pt;")
+        pct = label("", "muted")
+        pct.setStyleSheet("font-size: 8.5pt;")
+        top.addWidget(name, 1)
+        top.addWidget(pct)
+        bl.addLayout(top)
+        status = label(text, "muted")
+        status.setStyleSheet("font-size: 8.5pt;")
+        status.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        bl.addWidget(status)
+        bar = QProgressBar()
+        bar.setObjectName("mini")
+        bar.setRange(0, 0)
+        bl.addWidget(bar)
+        box.mousePressEvent = lambda _e, k=key: self.navigate(k)
+        self.lay.addWidget(box)
+        self.entries[token] = (box, status, pct, bar)
+        self.show()
+        return token
+
+    def update(self, token: int, text: str = "", pct: int = -1):
+        entry = self.entries.get(token)
+        if not entry:
+            return
+        _box, status, pct_label, bar = entry
+        if text:
+            status.setText(text)
+        if pct >= 0:
+            if bar.maximum() == 0:
+                bar.setRange(0, 100)
+            bar.setValue(min(100, int(pct)))
+            pct_label.setText(f"{min(100, int(pct))}%")
+
+    def finish(self, token: int, ok: bool = True, text: str = ""):
+        entry = self.entries.get(token)
+        if not entry:
+            return
+        box, status, pct_label, bar = entry
+        bar.setRange(0, 100)
+        bar.setValue(100 if ok else bar.value())
+        pct_label.setText("✓" if ok else "■")
+        pct_label.setStyleSheet(f"color: {theme.OK if ok else theme.WARN}; font-weight: 700;")
+        status.setText(text or ("Done" if ok else "Stopped"))
+        QTimer.singleShot(2500, lambda: self._drop(token))
+
+    def _drop(self, token: int):
+        entry = self.entries.pop(token, None)
+        if entry:
+            entry[0].deleteLater()
+        if not self.entries:
+            self.hide()
+
+    def running(self) -> int:
+        return len(self.entries)
 
 
 class Console(QPlainTextEdit):
@@ -639,7 +818,9 @@ class BasePage(QWidget):
         titles = QVBoxLayout()
         titles.setSpacing(2)
         titles.addWidget(label(self.title, "h1"))
-        titles.addWidget(label(self.subtitle, "muted"))
+        sub = label(self.subtitle, "muted", wrap=True)
+        sub.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        titles.addWidget(sub)
         head.addLayout(titles, 1)
         self.actions = QHBoxLayout()
         self.actions.setSpacing(8)
@@ -662,12 +843,17 @@ class BasePage(QWidget):
 
     def busy(self) -> bool:
         if self.worker is not None and self.worker.isRunning():
-            self.main.toast("Please wait for the current task to finish.")
+            self.main.notify("warning", "Still working on the last task",
+                             "Wait for it to finish, or press Cancel (Esc) to stop it.")
             return True
         return False
 
     def run(self, fn, *args, progress: ProgressRow = None, text: str = "Working…", on_done=None,
-            cancellable: bool = True, on_progress=None, **kwargs):
+            cancellable: bool = True, on_progress=None, summary=None, **kwargs):
+        """Run fn in the background with a progress strip, a sidebar activity entry and error toasts.
+
+        summary(result) -> str is shown as the green "Done" line when the task finishes.
+        """
         if self.busy():
             return None
         if progress is not None:
@@ -677,29 +863,50 @@ class BasePage(QWidget):
             except (RuntimeError, TypeError):
                 pass
             progress.cancel_requested.connect(self.cancel_task)
+        activity = getattr(self.main, "activity", None)
+        token = activity.start(getattr(self, "key", ""), self.title, text) if activity is not None else None
 
         def done(result):
             self.worker = None
+            line = ""
+            if summary is not None:
+                try:
+                    line = summary(result) or ""
+                except Exception:  # noqa: BLE001 - a summary must never break the result
+                    line = ""
             if progress is not None:
-                progress.stop()
+                progress.stop(True, line)
+            if token is not None:
+                activity.finish(token, True, line)
             self.set_busy_ui(False)
             if on_done:
                 on_done(result)
 
         def fail(msg):
             self.worker = None
+            cancelled = msg == "Cancelled"
             if progress is not None:
-                progress.stop()
+                progress.stop(False, "Cancelled" if cancelled else "Stopped by an error")
+            if token is not None:
+                activity.finish(token, False, "Cancelled" if cancelled else "Failed")
             self.set_busy_ui(False)
-            if msg == "Cancelled":
-                self.main.toast("Cancelled")
+            if cancelled:
+                self.main.notify("warning", f"{self.title}: cancelled", "Nothing further was changed.")
             else:
-                error(self, "Something went wrong", msg)
+                first = msg.splitlines()[0] if msg else "Unknown error"
+                self.main.notify("error", f"{self.title}: something went wrong", first[:160],
+                                 action=("Show details", lambda: error(self, "Something went wrong", first, msg)))
+
+        def prog(text_, pct):
+            if token is not None:
+                activity.update(token, text_, pct)
+            if on_progress is not None:
+                on_progress(text_, pct)
+            elif progress is not None:
+                progress.update_progress(text_, pct)
 
         self.set_busy_ui(True)
-        if on_progress is None and progress is not None:
-            on_progress = progress.update_progress
-        self.worker = start_task(fn, *args, on_done=done, on_error=fail, on_progress=on_progress, **kwargs)
+        self.worker = start_task(fn, *args, on_done=done, on_error=fail, on_progress=prog, **kwargs)
         return self.worker
 
     def cancel_task(self):

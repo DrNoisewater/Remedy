@@ -1,0 +1,198 @@
+"""Checks for the tailored-to-this-PC logic, catalogues, progress parsing, toasts and One-click optimize."""
+import pytest
+
+from remedy.core import maintenance, optimize, osinfo, programs, scanner, tweaks
+from remedy.core.osinfo import OSInfo
+
+WIN11_DESKTOP = OSInfo(True, 26100, "24H2", "Professional", laptop=False)
+WIN11_LAPTOP = OSInfo(True, 26100, "24H2", "Core", laptop=True)
+WIN10 = OSInfo(True, 19045, "22H2", "Professional", laptop=False)
+LINUX = OSInfo(False)
+
+# Tweak ids from v1.1.0. They key the undo backups on users' PCs, so they must never change.
+V110_IDS = {"power_plan", "animations", "menu_delay", "startup_delay", "transparency", "hibernation",
+            "background_apps", "sysmain", "wsearch", "game_mode", "game_dvr", "hags", "mouse_accel", "sticky_keys",
+            "net_throttle", "ad_id", "tailored", "suggestions", "web_search", "copilot", "activity", "telemetry",
+            "file_ext", "hidden_files", "this_pc", "classic_menu", "end_task"}
+
+
+# ---------------------------------------------------------------- OS detection
+def test_os_names():
+    assert WIN11_DESKTOP.is_win11 and not WIN11_DESKTOP.is_win10
+    assert WIN10.is_win10 and not WIN10.is_win11
+    assert WIN11_DESKTOP.summary() == "Windows 11 Pro 24H2 · build 26100 · Desktop"
+    assert WIN11_LAPTOP.edition_name == "Home" and WIN11_LAPTOP.is_home
+    assert WIN10.short() == "Windows 10 22H2"
+
+
+def test_applies():
+    assert osinfo.applies("", WIN10) == (True, "")
+    assert osinfo.applies("win11", WIN10) == (False, "Windows 11 only")
+    assert osinfo.applies("win10", WIN11_DESKTOP) == (False, "Windows 10 only")
+    assert osinfo.applies("", LINUX)[0] is False
+
+
+def test_detect_runs_here():
+    info = osinfo.detect(refresh=True)
+    assert info.family
+
+
+# ---------------------------------------------------------------- tweaks catalogue
+def test_tweak_catalogue_is_consistent():
+    items = tweaks.build_tweaks()
+    ids = [t.id for t in items]
+    assert len(ids) == len(set(ids)), "duplicate tweak ids"
+    assert V110_IDS <= set(ids), f"tweak ids removed: {V110_IDS - set(ids)}"
+    for t in items:
+        assert t.category in tweaks.CATEGORY_ORDER
+        assert t.target in ("", "win10", "win11")
+        assert t.risk in ("Safe", "Moderate", "Advanced")
+        assert t.name and t.description
+        for v in getattr(t, "values", []):
+            assert len(v) == 6 and v[0] in ("HKCU", "HKLM")
+    orders = [tweaks.CATEGORY_ORDER.index(t.category) for t in items]
+    assert orders == sorted(orders)
+
+
+def test_presets_point_at_real_tweaks():
+    ids = {t.id for t in tweaks.build_tweaks()}
+    for name, members in tweaks.PRESETS.items():
+        assert set(members) <= ids, name
+
+
+def test_tailoring_to_windows_version_and_laptops():
+    items = tweaks.build_tweaks()
+    by_id = {t.id: t for t in items}
+    assert by_id["classic_menu"].availability(WIN10) == (False, "Windows 11 only")
+    assert by_id["background_apps"].availability(WIN11_DESKTOP)[0] is False
+    assert by_id["background_apps"].availability(WIN10)[0] is True
+    win10_suggested = {t.id for t in items if t.suggested(WIN10)}
+    assert not any(by_id[i].target == "win11" for i in win10_suggested)
+    gaming_laptop = tweaks.preset_ids("Gaming", items, WIN11_LAPTOP)
+    gaming_desktop = tweaks.preset_ids("Gaming", items, WIN11_DESKTOP)
+    assert "power_plan" in gaming_desktop and "power_plan" not in gaming_laptop
+    assert tweaks.preset_ids("Windows 11 clean-up", items, WIN10) == [
+        i for i in tweaks.PRESETS["Windows 11 clean-up"] if by_id[i].target != "win11"]
+
+
+# ---------------------------------------------------------------- other catalogues
+def test_maintenance_actions():
+    actions = maintenance.build_actions()
+    keys = [a.key for a in actions]
+    assert len(keys) == len(set(keys))
+    assert all(a.group in maintenance.GROUP_ORDER for a in actions)
+    assert all(bool(a.cmd) != bool(a.launch) for a in actions)
+
+
+@pytest.mark.parametrize("line,expected", [
+    ("Verification 45% complete.", 45),
+    ("[=========================100.0%==========================]", 100),
+    ("  62,3 %", 62),
+    ("Beginning system scan.", None),
+    ("Rate 250% boost", None),
+])
+def test_percent_in(line, expected):
+    assert maintenance.percent_in(line) == expected
+
+
+def test_bloat_list_shape():
+    for name, (label, recommended) in programs.KNOWN_BLOAT.items():
+        assert name and label and isinstance(recommended, bool)
+
+
+def test_estimated_scan_percent():
+    assert scanner.estimate_pct(50, 100) == 49
+    assert scanner.estimate_pct(500, 100) == 99
+    assert scanner.estimate_pct(10, 0) == -1
+    assert scanner.estimate_pct(50, 100, 0, 30) == 15
+
+
+# ---------------------------------------------------------------- One-click optimize
+def test_plan_is_tailored():
+    linux = {s.key: s for s in optimize.plan(LINUX, admin=False)}
+    assert linux["junk"].available and not linux["tweaks"].available
+    win = {s.key: s for s in optimize.plan(WIN11_LAPTOP, admin=False)}
+    assert not win["restore"].available and win["restore"].reason == "Needs administrator"
+    assert "Windows 11 24H2" in win["tweaks"].title and "laptops" in win["tweaks"].description
+    assert win["bloat"].default is False
+
+
+class _Ctx:
+    def __init__(self, cancel_after=None):
+        self.lines, self.cancel_after = [], cancel_after
+
+    def progress(self, text, pct=-1, force=False):
+        self.lines.append((text, pct))
+
+    def cancelled(self):
+        return self.cancel_after is not None and len(self.lines) >= self.cancel_after
+
+
+def test_run_keeps_going_after_a_failed_step(monkeypatch):
+    def good(ctx, report):
+        report("half", 50)
+        return "fine"
+
+    def bad(ctx, report):
+        raise RuntimeError("Needs administrator\nmore detail")
+    monkeypatch.setitem(optimize.RUNNERS, "junk", good)
+    monkeypatch.setitem(optimize.RUNNERS, "dns", bad)
+    ctx = _Ctx()
+    results = optimize.run(ctx, ["junk", "dns"])
+    assert results == [("junk", True, "fine"), ("dns", False, "Needs administrator")]
+    from remedy.ui.optimize_wizard import parse_line
+    parsed = [parse_line(t) for t, _ in ctx.lines]
+    assert ("junk", "run", "half", 50) in parsed
+    assert ("dns", "fail", "Needs administrator", -1) in parsed
+    assert ctx.lines[-1][1] == 100
+
+
+def test_run_can_be_cancelled(monkeypatch):
+    from remedy.core.utils import TaskCancelled
+    monkeypatch.setitem(optimize.RUNNERS, "junk", lambda ctx, report: "x")
+    with pytest.raises(TaskCancelled):
+        optimize.run(_Ctx(cancel_after=0), ["junk"])
+
+
+# ---------------------------------------------------------------- health score
+def test_health_score_uses_tailored_checks():
+    from remedy.ui.pages_system import score_health
+    base = {"admin": True, "junk": 0, "free_pct": 50, "free": 100e9, "startup": 2, "mem": 30, "uptime_days": 1,
+            "hiberfil": 0}
+    assert score_health(base)[0] == 100
+    score, recs = score_health({**base, "tweaks_pending": 9, "bloat": 5, "laptop": True, "os": "Windows 11 24H2"})
+    assert score < 100
+    texts = " ".join(r[1] for r in recs)
+    assert "Windows 11 24H2" in texts and "bloatware" in texts and "battery" in texts
+
+
+# ---------------------------------------------------------------- toasts
+@pytest.fixture
+def qapp():
+    from PySide6.QtWidgets import QApplication
+    return QApplication.instance() or QApplication([])
+
+
+def test_toasts_stack_dedupe_and_cap(qapp):
+    from PySide6.QtWidgets import QWidget
+    from remedy.ui.notify import MAX_VISIBLE, ToastManager, duration_for
+    win = QWidget()
+    win.resize(1000, 800)
+    m = ToastManager(win)
+    first = m.show("success", "Freed 1 GB", "12 files")
+    assert m.show("success", "Freed 1 GB", "12 files") is first          # same message: not shown twice
+    for i in range(6):
+        m.show("info", f"Message {i}")
+    assert len(m.visible()) == MAX_VISIBLE
+    assert duration_for("error", "x") > duration_for("success", "x")
+    assert 3500 <= duration_for("info", "word " * 200) <= 11000
+    win.close()
+
+
+def test_toast_kinds_fall_back_to_info(qapp):
+    from PySide6.QtWidgets import QWidget
+    from remedy.ui.notify import ToastManager
+    win = QWidget()
+    card = ToastManager(win).show("nonsense", "Hello")
+    assert card.kind == "info"
+    win.close()

@@ -66,12 +66,37 @@ def _is_link(entry, st) -> bool:
     return False
 
 
-def walk_entries(roots, ctx=None, skip_system=True, exclusions=None):
+def expected_bytes(roots) -> int:
+    """Used space on the drives being scanned, for an estimated percentage. 0 when it can't be known
+    (e.g. scanning a single folder rather than a whole drive)."""
+    import shutil
+    total = 0
+    for r in roots:
+        try:
+            if not os.path.ismount(r):
+                return 0
+            total += shutil.disk_usage(r).used
+        except OSError:
+            return 0
+    return total
+
+
+def estimate_pct(seen: int, expected: int, lo: int = 0, hi: int = 99) -> int:
+    """Map bytes seen onto lo..hi; -1 (unknown) when there's nothing to compare against."""
+    if expected <= 0:
+        return -1
+    return lo + int((hi - lo) * min(1.0, seen / expected))
+
+
+def walk_entries(roots, ctx=None, skip_system=True, exclusions=None, span=(0, 99)):
     """Yield (path, size, mtime) for every regular file under roots.
 
     Never follows symlinks/junctions, skips cloud placeholders that use no disk space,
-    honours user exclusions and reports progress to ctx about every 0.2 s.
+    honours user exclusions and reports progress to ctx about every 0.2 s (with an estimated
+    percentage within `span` when whole drives are scanned).
     """
+    expected = expected_bytes(roots) if ctx is not None else 0
+    seen = 0
     excl = {_norm(e) for e in (settings.get("exclusions") if exclusions is None else exclusions) or []}
     skip_paths = _system_skip_paths() if skip_system else set()
     stack = list(roots)
@@ -103,6 +128,7 @@ def walk_entries(roots, ctx=None, skip_system=True, exclusions=None):
                         if attrs & (_OFFLINE | _RECALL_ON_DATA | _RECALL_ON_OPEN):
                             continue  # cloud-only placeholder, takes no disk space
                         files += 1
+                        seen += st.st_size
                         yield entry.path, st.st_size, st.st_mtime
                 except OSError:
                     continue
@@ -110,7 +136,7 @@ def walk_entries(roots, ctx=None, skip_system=True, exclusions=None):
             now = time.monotonic()
             if now - last > 0.2:
                 last = now
-                ctx.progress(f"{files:,} files scanned: {folder}")
+                ctx.progress(f"{files:,} files checked · {folder}", estimate_pct(seen, expected, *span))
 
 
 # --------------------------------------------------------------------------- large files
@@ -158,7 +184,7 @@ def _hash_file(path, size, partial, ctx=None):
 
 def find_duplicates(ctx, roots, min_bytes) -> dict:
     by_size = defaultdict(list)
-    for path, size, mtime in walk_entries(roots, ctx, skip_system=True):
+    for path, size, mtime in walk_entries(roots, ctx, skip_system=True, span=(0, 30)):
         if size >= max(1, min_bytes):
             by_size[size].append((path, mtime))
     candidates = {s: f for s, f in by_size.items() if len(f) > 1}
@@ -173,7 +199,7 @@ def find_duplicates(ctx, roots, min_bytes) -> dict:
             digest = _hash_file(path, size, True)
             done += 1
             if ctx is not None:
-                ctx.progress(f"Comparing candidates… {done:,}/{total:,}", int(done * 40 / total))
+                ctx.progress(f"Comparing look-alike files… {done:,} of {total:,}", 30 + int(done * 30 / total))
             if digest:
                 buckets[digest].append((path, mtime))
         stage2.extend((size, grp) for grp in buckets.values() if len(grp) > 1)
@@ -192,8 +218,8 @@ def find_duplicates(ctx, roots, min_bytes) -> dict:
                 digest = _hash_file(path, size, False, ctx)
                 hashed += size
                 if ctx is not None:
-                    ctx.progress(f"Verifying contents… {os.path.basename(path)}",
-                                 40 + int(hashed * 60 / total_bytes))
+                    ctx.progress(f"Confirming identical contents… {os.path.basename(path)}",
+                                 60 + int(hashed * 40 / total_bytes))
                 if digest:
                     buckets[digest].append((path, mtime))
             final = [g for g in buckets.values() if len(g) > 1]
@@ -223,6 +249,8 @@ def build_tree(ctx, root: str) -> dict:
     cat_totals: dict = defaultdict(int)
     ext_totals: dict = defaultdict(int)
     root_node = DirNode(root, root)
+    expected = expected_bytes([root]) if ctx is not None else 0
+    seen = 0
     stack = [root_node]
     order = []
     last = 0.0
@@ -252,6 +280,7 @@ def build_tree(ctx, root: str) -> dict:
                             continue
                         node.own_size += st.st_size
                         node.own_files += 1
+                        seen += st.st_size
                         ext = os.path.splitext(entry.name)[1].lower() or "(none)"
                         ext_totals[ext] += st.st_size
                         cat_totals[_EXT_TO_CAT.get(ext, "Other")] += st.st_size
@@ -262,7 +291,7 @@ def build_tree(ctx, root: str) -> dict:
             now = time.monotonic()
             if now - last > 0.2:
                 last = now
-                ctx.progress(f"{scanned:,} files measured: {node.path}")
+                ctx.progress(f"{scanned:,} files measured · {node.path}", estimate_pct(seen, expected))
     for node in reversed(order):  # children always come after their parent in `order`
         node.size = node.own_size + sum(c.size for c in node.children)
         node.files = node.own_files + sum(c.files for c in node.children)

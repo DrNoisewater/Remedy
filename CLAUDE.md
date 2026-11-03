@@ -14,8 +14,21 @@ to click. Avoid code talk and jargon; if a technical term is unavoidable, say wh
   `version_info.txt` (the file details Windows shows for the exe). The `v1.1.0` in README.md is just text.
 - Dependencies: `requirements.txt` (loose, for running from source) and `requirements-ci.txt` (exact versions
   used by the cloud builds; update both together when upgrading a library).
-- Tests: `tests/` contains smoke tests (every module loads; the main window builds with every page; the
-  version is three numbers). The app had no tests before these.
+- Tests: `tests/test_smoke.py` (every module loads, the main window builds, version format) and
+  `tests/test_features.py` (Windows-version tailoring, tweak/preset/maintenance/bloat catalogues, progress
+  parsing, One-click optimize runner, health score, toasts).
+- Tweak ids in `remedy/core/tweaks.py` key the undo backups on users' PCs: never rename or remove one
+  (a test guards the v1.1.0 ids).
+
+## How the app is organised
+
+- `remedy/core/` = the engine, no UI. `osinfo.py` detects Windows 10/11, release, edition, laptop/desktop;
+  every tweak and maintenance action has a `target` ("", "win10", "win11") and tweaks may have a
+  `laptop_note`. `optimize.py` is One-click optimize. `tweaks.PRESETS` holds the preset lists.
+- `remedy/ui/` = the pages. Shared pieces: `notify.py` (toasts: `main.notify(kind, title, body, action=...)`),
+  `dialogs.py` (themed confirm/info/error), `widgets.py` (`BasePage.run(...)` gives every background task a
+  progress strip, a sidebar "Running" entry and error toasts; pass `summary=` for the green "Done" line;
+  `attach_empty` for empty-list messages), `optimize_wizard.py`.
 - `build/`, `dist/` and `__pycache__` folders are old build leftovers committed to the repo; builds overwrite them.
 
 ## Commands that were run and worked (Linux cloud container, Nov 2026)
@@ -28,7 +41,7 @@ python3.12 -m venv .venv                                                       #
 .venv/bin/pip install -r requirements-ci.txt                                   # ~2 min (PySide6 is large)
 ```
 
-Tests (~0.5 s, 24 passed):
+Tests (~0.6 s, 49 passed):
 
 ```bash
 .venv/bin/python -m pytest -q
@@ -57,8 +70,10 @@ Do the build in a scratch copy, or discard the changes afterwards, so the commit
   download and try it.
 - **Can't test Windows-only features** (registry, services, winget, tweaks, SFC/DISM, UAC prompt). On Linux
   these are switched off by the app itself. They can only be checked by running the exe on a Windows PC.
-- **Can see the layout off-screen:** `QT_QPA_PLATFORM=offscreen` lets the window be built (and screenshotted
-  with Qt's `grab()`), but it shows Linux fonts and no Windows data.
+- **Can see the layout off-screen:** `QT_QPA_PLATFORM=offscreen` lets the window be built and screenshotted
+  with Qt's `grab()` (Linux fonts, no Windows data, no Segoe icons in the sidebar). To preview the Windows 11
+  layout, set `remedy.core.osinfo._CACHE = OSInfo(True, 26100, "24H2", "Professional", laptop=True)` before
+  building the window. Never run One-click optimize for real in the container (it would clean /tmp).
 
 ## CI and releases
 

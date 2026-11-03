@@ -37,7 +37,32 @@ def apply_palette(app) -> None:
     app.setPalette(pal)
 
 
+_CHECK_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">'
+              '<path d="M3.5 8.4 L6.6 11.4 L12.6 4.8" fill="none" stroke="#04130f" stroke-width="2.2" '
+              'stroke-linecap="round" stroke-linejoin="round"/></svg>')
+_DASH_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">'
+             '<path d="M4.5 8 H11.5" stroke="#2dd4bf" stroke-width="2.2" stroke-linecap="round"/></svg>')
+
+
+def _asset(name: str, content: str) -> str:
+    """Write a small SVG next to Remedy's settings and return a stylesheet-friendly path ("" on failure)."""
+    try:
+        from .core.utils import APP_DIR
+        folder = APP_DIR / "ui"
+        folder.mkdir(parents=True, exist_ok=True)
+        path = folder / name
+        if not path.exists() or path.read_text(encoding="utf-8") != content:
+            path.write_text(content, encoding="utf-8")
+        return path.as_posix()
+    except OSError:
+        return ""
+
+
 def stylesheet() -> str:
+    check = _asset("check.svg", _CHECK_SVG)
+    dash = _asset("dash.svg", _DASH_SVG)
+    check_img = f"image: url({check});" if check else "image: none;"
+    dash_img = f"image: url({dash});" if dash else ""
     return f"""
 * {{ font-family: {FONT}; font-size: 10pt; }}
 QMainWindow, QStackedWidget, QWidget#page, QScrollArea, QScrollArea > QWidget > QWidget {{ background: {BG}; }}
@@ -52,7 +77,18 @@ QLabel#pill {{ border-radius: 9px; padding: 2px 9px; font-size: 8.5pt; font-weig
 
 QFrame#card {{ background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 14px; }}
 QFrame#sidebar {{ background: {SIDE}; border-right: 1px solid {BORDER}; }}
-QFrame#toast {{ background: {SURFACE2}; border: 1px solid {ACCENT}; border-radius: 12px; }}
+QFrame#progressrow {{ background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 10px; }}
+QFrame#progressrow[state="running"] {{ border-color: #1f4e4a; }}
+QFrame#progressrow[state="done"] {{ border-color: #1d5a3c; background: #0f1d18; }}
+QFrame#progressrow[state="stopped"] {{ border-color: #5a4419; background: #1d1810; }}
+QFrame#activity {{ background: {SURFACE}; border: 1px solid {BORDER}; border-radius: 10px; }}
+QFrame#activityitem {{ background: transparent; }}
+QProgressBar#mini {{ min-height: 4px; max-height: 4px; border-radius: 2px; }}
+QProgressBar#mini::chunk {{ border-radius: 2px; }}
+QDialog {{ background: {SURFACE}; }}
+QFrame#recommend {{ background: {SURFACE2}; border: 1px solid {BORDER}; border-radius: 10px; }}
+QLabel#empty {{ color: {MUTED}; font-size: 11pt; }}
+QLabel#section {{ color: {TEXT}; font-size: 12pt; font-weight: 700; padding-top: 6px; }}
 
 QPushButton {{ background: {SURFACE2}; color: {TEXT}; border: 1px solid {BORDER}; border-radius: 9px;
               padding: 7px 15px; }}
@@ -99,9 +135,12 @@ QPlainTextEdit#console {{ background: #080a0f; color: #c9d1e3; border: 1px solid
 QCheckBox {{ spacing: 8px; background: transparent; }}
 QCheckBox::indicator, QTreeWidget::indicator {{ width: 16px; height: 16px; border-radius: 4px; border: 1px solid #3a4256;
               background: {SURFACE2}; }}
+QCheckBox::indicator:hover, QTreeWidget::indicator:hover {{ border-color: {ACCENT}; }}
 QCheckBox::indicator:checked, QTreeWidget::indicator:checked {{ background: {ACCENT}; border-color: {ACCENT};
-              image: none; }}
-QTreeWidget::indicator:indeterminate {{ background: #1f4e4a; border-color: {ACCENT}; }}
+              {check_img} }}
+QTreeWidget::indicator:indeterminate {{ background: #123532; border-color: {ACCENT}; {dash_img} }}
+QCheckBox::indicator:disabled, QTreeWidget::indicator:disabled {{ background: #151a24; border-color: #262d3d; }}
+QCheckBox::indicator:checked:disabled, QTreeWidget::indicator:checked:disabled {{ background: #1d3b3a; }}
 
 QScrollBar:vertical {{ background: transparent; width: 10px; margin: 4px 2px; }}
 QScrollBar::handle:vertical {{ background: #2a3142; border-radius: 3px; min-height: 30px; }}
@@ -119,5 +158,5 @@ QSplitter::handle {{ background: transparent; }}
 QTabWidget::pane {{ border: none; }}
 QTabBar::tab {{ background: transparent; color: {MUTED}; padding: 8px 16px; border-bottom: 2px solid transparent; }}
 QTabBar::tab:selected {{ color: {TEXT}; border-bottom-color: {ACCENT}; }}
-QMessageBox {{ background: {SURFACE}; }}
+QPushButton:focus {{ outline: none; }}
 """

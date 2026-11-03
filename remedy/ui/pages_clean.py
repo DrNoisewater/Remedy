@@ -11,20 +11,28 @@ from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox, QHBoxLayout, QLineEdit
 from ..core import junk, scanner
 from ..core.utils import TaskCancelled, delete_paths, fmt_time, human_size, is_admin, open_location, settings
 from .widgets import (OBJ_ROLE, PATH_ROLE, UR, BarList, BasePage, Card, ProgressRow, ShareDelegate, SortItem,
-                      button, confirm, error, error_report, info, label, make_tree, size_widths)
+                      attach_empty, button, confirm, error, error_report, label, make_tree, size_widths)
 from . import widgets as W
 
 
+def _plural(n: int, word: str) -> str:
+    return f"{n:,} {word}{'' if n == 1 else 's'}"
+
+
 def _delete_summary(page, res: dict, what: str = "file") -> None:
-    n, freed = len(res["deleted"]), res["freed"]
-    if n:
-        verb = "Moved to Recycle Bin" if res.get("recycled") else "Deleted"
-        tail = ". Empty the Recycle Bin in Junk Cleaner to reclaim the space." if res.get("recycled") else ""
-        page.main.toast(f"{verb}: {n} {what}{'s' if n != 1 else ''} ({human_size(freed)}){tail}")
-    if res["errors"]:
-        error(page, "Some items were skipped",
-              f"{len(res['errors'])} item(s) could not be removed. They may be in use, protected, "
-              f"or need administrator rights.", error_report(res["errors"]))
+    n, freed, errs = len(res["deleted"]), res["freed"], res["errors"]
+    if n and res.get("recycled"):
+        page.main.notify("success", f"Moved {_plural(n, what)} to the Recycle Bin",
+                         f"{human_size(freed)} will be freed once the Recycle Bin is emptied.",
+                         action=("Empty it in Junk Cleaner", lambda: page.main.navigate("cleaner")))
+    elif n:
+        page.main.notify("success", f"Deleted {_plural(n, what)}", f"{human_size(freed)} freed.")
+    if errs:
+        page.main.notify("warning", f"{_plural(len(errs), 'item')} couldn't be removed",
+                         "They may be open in another app, protected, or need administrator rights.",
+                         action=("Show details", lambda: error(page, "Some items were skipped",
+                                                               "These items were left in place:",
+                                                               error_report(errs))))
 
 
 def _copy(text: str) -> None:
@@ -35,13 +43,17 @@ def _copy(text: str) -> None:
 def _scan_junk(ctx):
     cats = junk.build_categories()
     admin = is_admin()
+    found = 0
     for i, c in enumerate(cats):
         if ctx.cancelled():
             raise TaskCancelled()
-        ctx.progress(f"Scanning {c.name}…", int(i * 100 / max(1, len(cats))), force=True)
+        tail = f"  ·  {human_size(found)} found so far" if found else ""
+        ctx.progress(f"Scanning {c.name} ({i + 1} of {len(cats)}){tail}", int(i * 100 / max(1, len(cats))),
+                     force=True)
         if c.admin and not admin:
             continue
         junk.scan_category(c, ctx)
+        found += c.size
     return cats
 
 
@@ -50,7 +62,8 @@ def _clean_junk(ctx, cats):
     for i, c in enumerate(cats):
         if ctx.cancelled():
             break
-        ctx.progress(f"Cleaning {c.name}…", int(i * 100 / max(1, len(cats))), force=True)
+        ctx.progress(f"Cleaning {c.name} ({i + 1} of {len(cats)})  ·  {human_size(freed)} freed so far",
+                     int(i * 100 / max(1, len(cats))), force=True)
         f, d, x = junk.clean_category(c, ctx)
         freed, deleted, failed = freed + f, deleted + d, failed + x
     return freed, deleted, failed
@@ -87,13 +100,17 @@ class CleanerPage(BasePage):
         self.tree.itemChanged.connect(self._changed)
         self.tree.currentItemChanged.connect(self._show_desc)
         self.root.addWidget(self.tree, 1)
-        self.desc = label("", "muted", wrap=True)
+        attach_empty(self.tree, "Scanning for junk…")
+        self.desc = label("Tip: select a category to see exactly what it removes.", "muted", wrap=True)
         self.root.addWidget(self.desc)
         if not is_admin():
             self.root.addWidget(label("Some system categories need administrator rights. Use “Restart as admin” "
                                       "in the sidebar to include them.", "muted", wrap=True))
 
     def on_first_show(self):
+        self.scan()
+
+    def refresh_action(self):
         self.scan()
 
     def set_busy_ui(self, busy):
@@ -113,7 +130,8 @@ class CleanerPage(BasePage):
 
     def scan(self):
         self._remember()
-        self.run(_scan_junk, progress=self.progress, text="Scanning…", on_done=self._populate)
+        self.run(_scan_junk, progress=self.progress, text="Scanning for junk…", on_done=self._populate,
+                 summary=lambda cats: f"Scan complete: {human_size(sum(c.size for c in cats))} of junk found")
 
     def _populate(self, cats):
         self.cats = {c.key: c for c in cats}
@@ -172,21 +190,23 @@ class CleanerPage(BasePage):
     def clean(self):
         cats = [c for c in self._selected() if c.size > 0]
         if not cats:
-            self.main.toast("Nothing selected to clean. Run a scan first.")
+            self.main.notify("info", "Nothing to clean yet", "Tick at least one category that has junk in it.")
             return
         total = sum(c.size for c in cats)
-        if not confirm(self, "Clean junk", f"Permanently remove {human_size(total)} of junk from "
-                                           f"{len(cats)} categories?", "Clean now"):
+        if not confirm(self, f"Clean {human_size(total)} of junk?",
+                       "These are temporary and cache files. Apps and Windows recreate what they need.",
+                       "Clean now", bullets=[f"{c.name}: {human_size(c.size)}" for c in cats]):
             return
         self._remember()
-        self.run(_clean_junk, cats, progress=self.progress, text="Cleaning…", on_done=self._cleaned)
+        self.run(_clean_junk, cats, progress=self.progress, text="Cleaning…", on_done=self._cleaned,
+                 summary=lambda r: f"Freed {human_size(r[0])}")
 
     def _cleaned(self, result):
         freed, deleted, failed = result
-        msg = f"Freed {human_size(freed)}: {deleted:,} files removed"
+        body = f"{_plural(deleted, 'file')} removed."
         if failed:
-            msg += f", {failed:,} in use and skipped"
-        self.main.toast(msg)
+            body += f" {failed:,} were in use and skipped. Close open apps and clean again to get those too."
+        self.main.notify("success" if freed or not failed else "warning", f"Freed {human_size(freed)}", body)
         self.scan()
 
 
@@ -239,6 +259,8 @@ class LargeFilesPage(BasePage):
         self.tree.itemDoubleClicked.connect(lambda it, _c: open_location(it.data(0, PATH_ROLE)))
         self.tree.customContextMenuRequested.connect(self._menu)
         self.root.addWidget(self.tree, 1)
+        self.empty = attach_empty(self.tree, "Pick a drive or folder above, then press Scan.\n"
+                                             "The biggest files show up here, largest first.")
 
         bottom = QHBoxLayout()
         self.summary = label("Choose a location and press Scan.", "muted")
@@ -264,8 +286,12 @@ class LargeFilesPage(BasePage):
             return
         settings.set("large_file_min_mb", self.min_size.value())
         self.run(scanner.find_large_files, roots, self.min_size.value() * 1024 * 1024, self.age.currentData(),
-                 int(settings.get("max_large_results")), progress=self.progress, text="Scanning…",
-                 on_done=self._populate)
+                 int(settings.get("max_large_results")), progress=self.progress, text="Looking for large files…",
+                 on_done=self._populate,
+                 summary=lambda r: f"Found {len(r['items']):,} large files · {human_size(sum(i['size'] for i in r['items']))}")
+
+    def refresh_action(self):
+        self.scan()
 
     def _populate(self, result):
         items = result["items"]
@@ -287,7 +313,9 @@ class LargeFilesPage(BasePage):
         self.tree.sortItems(1, Qt.DescendingOrder)
         total = sum(i["size"] for i in items)
         note = " (stopped early)" if result.get("cancelled") else ""
-        self.summary.setText(f"{len(items):,} files · {human_size(total)}{note}")
+        self.summary.setText(f"{len(items):,} files · {human_size(total)}{note}. "
+                             "Select files, then recycle or delete them.")
+        self.empty.setText("No files that big here. Try a smaller minimum size or another location.")
         self._filter()
 
     def _filter(self, *_):
@@ -327,16 +355,23 @@ class LargeFilesPage(BasePage):
     def _delete(self, recycle: bool):
         sel = self._selected()
         if not sel:
-            self.main.toast("Select one or more files first.")
+            self.main.notify("info", "Select files first", "Click a file (Ctrl or Shift to pick several).")
             return
         paths = [i.data(0, PATH_ROLE) for i in sel]
         size = sum(i.data(1, UR) for i in sel)
-        action = "Move to the Recycle Bin" if recycle else "PERMANENTLY delete"
-        if not confirm(self, "Remove files", f"{action} {len(paths)} file(s) totalling {human_size(size)}?"
-                       + ("" if recycle else "\n\nThis cannot be undone."), "Remove"):
+        names = [f"{i.text(0)}  ({human_size(i.data(1, UR))})" for i in sel]
+        if recycle:
+            ok = confirm(self, f"Move {_plural(len(paths), 'file')} to the Recycle Bin?",
+                         f"{human_size(size)} in total. You can restore them from the Recycle Bin.",
+                         "Move to Recycle Bin", bullets=names)
+        else:
+            ok = confirm(self, f"Permanently delete {_plural(len(paths), 'file')}?",
+                         f"{human_size(size)} in total. This can't be undone.", "Delete permanently",
+                         danger=True, bullets=names)
+        if not ok:
             return
-        self.run(lambda ctx: delete_paths(paths, recycle, ctx), progress=self.progress, text="Removing…",
-                 on_done=self._deleted)
+        self.run(lambda ctx: delete_paths(paths, recycle, ctx), progress=self.progress, text="Removing files…",
+                 on_done=self._deleted, summary=lambda r: f"Removed {_plural(len(r['deleted']), 'file')}")
 
     def _deleted(self, res):
         gone = set(res["deleted"])
@@ -374,6 +409,8 @@ class DuplicatesPage(BasePage):
         self.tree.itemChanged.connect(lambda *_: self._update_summary())
         self.tree.itemDoubleClicked.connect(lambda it, _c: it.data(0, PATH_ROLE) and open_location(it.data(0, PATH_ROLE)))
         self.root.addWidget(self.tree, 1)
+        self.empty = attach_empty(self.tree, "Pick a drive or folder above, then press Scan.\n"
+                                             "Files are compared by their contents, so renamed copies are found too.")
 
         bottom = QHBoxLayout()
         self.summary = label("Choose a location and press Scan.", "muted")
@@ -404,7 +441,12 @@ class DuplicatesPage(BasePage):
             return
         settings.set("duplicate_min_mb", self.min_size.value())
         self.run(scanner.find_duplicates, roots, int(self.min_size.value() * 1024 * 1024),
-                 progress=self.progress, text="Indexing files…", on_done=self._populate)
+                 progress=self.progress, text="Listing files…", on_done=self._populate,
+                 summary=lambda r: (f"{len(r['groups']):,} sets of duplicates · "
+                                    f"{human_size(sum(g['wasted'] for g in r['groups']))} recoverable"))
+
+    def refresh_action(self):
+        self.scan()
 
     def _populate(self, result):
         self.tree.blockSignals(True)
@@ -432,8 +474,10 @@ class DuplicatesPage(BasePage):
             head.setExpanded(True)
         self.tree.blockSignals(False)
         wasted = sum(g["wasted"] for g in groups)
-        self.summary.setText(f"{len(groups):,} duplicate groups · {human_size(wasted)} recoverable" if groups
+        self.summary.setText(f"{len(groups):,} sets of duplicates · {human_size(wasted)} recoverable. "
+                             "The newest copy of each is kept; change it with Auto-select." if groups
                              else "No duplicates found. Nice and tidy.")
+        self.empty.setText("No duplicates found here. Nice and tidy.")
         if groups:
             self._auto("newest")
 
@@ -481,14 +525,18 @@ class DuplicatesPage(BasePage):
                 continue
             paths += [k.data(0, PATH_ROLE) for k in checked]
         if skipped:
-            info(self, "Kept a copy", f"{skipped} group(s) had every copy checked. Remedy always keeps at least "
-                                      f"one copy, so those groups were left alone.")
+            self.main.notify("info", f"Kept every copy in {_plural(skipped, 'set')}",
+                             "All copies were ticked there. Remedy always keeps at least one copy.")
         if not paths:
+            if not skipped:
+                self.main.notify("info", "Nothing ticked", "Tick the copies you want to remove, or use Auto-select.")
             return
-        if not confirm(self, "Remove duplicates", f"Move {len(paths)} duplicate file(s) to the Recycle Bin?", "Remove"):
+        if not confirm(self, f"Move {_plural(len(paths), 'duplicate')} to the Recycle Bin?",
+                       "One copy of every file is always kept. You can restore anything from the Recycle Bin.",
+                       "Move to Recycle Bin"):
             return
-        self.run(lambda ctx: delete_paths(paths, True, ctx), progress=self.progress, text="Removing…",
-                 on_done=self._deleted)
+        self.run(lambda ctx: delete_paths(paths, True, ctx), progress=self.progress, text="Removing duplicates…",
+                 on_done=self._deleted, summary=lambda r: f"Removed {_plural(len(r['deleted']), 'duplicate')}")
 
     def _deleted(self, res):
         gone = set(res["deleted"])
@@ -534,6 +582,8 @@ class DiskPage(BasePage):
         self.tree.itemExpanded.connect(self._expand)
         self.tree.customContextMenuRequested.connect(self._menu)
         split.addWidget(self.tree)
+        attach_empty(self.tree, "Pick a drive or folder above, then press Analyze.\n"
+                                "Right-click any folder to open it or hunt for large files and duplicates inside.")
 
         side = QWidget()
         sl = QVBoxLayout(side)
@@ -559,7 +609,11 @@ class DiskPage(BasePage):
     def scan(self):
         roots = self.location.roots()
         if roots:
-            self.run(_scan_tree, roots, progress=self.progress, text="Measuring folders…", on_done=self._populate)
+            self.run(_scan_tree, roots, progress=self.progress, text="Measuring folders…", on_done=self._populate,
+                     summary=lambda res: f"Measured {human_size(sum(r['root'].size for r in res))}")
+
+    def refresh_action(self):
+        self.scan()
 
     def _item(self, node, parent_size):
         it = SortItem([node.name, human_size(node.size), "", f"{node.files:,}"])
@@ -593,7 +647,7 @@ class DiskPage(BasePage):
         self.ext_bars.set_data([(k, v, "#2dd4bf") for k, v in sorted(exts.items(), key=lambda kv: kv[1],
                                                                       reverse=True)[:10]])
         if any(r["cancelled"] for r in results):
-            self.main.toast("Stopped early. Sizes cover what was scanned so far.")
+            self.main.notify("warning", "Stopped early", "Sizes only cover what was measured before you cancelled.")
 
     def _expand(self, item):
         node = item.data(0, OBJ_ROLE)
