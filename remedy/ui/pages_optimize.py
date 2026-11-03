@@ -287,6 +287,18 @@ class TweaksPage(BasePage):
             g.setExpanded(True)
         self.tree.blockSignals(False)
 
+    def open_route(self, params: dict) -> None:
+        """{"tweak": id}: select and show that tweak (used by search and by setup/repair links)."""
+        tid = params.get("tweak")
+        if not tid:
+            return
+        for it in self._children():
+            if it.data(0, OBJ_ROLE).id == tid:
+                it.parent().setExpanded(True)
+                self.tree.setCurrentItem(it)
+                self.tree.scrollToItem(it)
+                break
+
     def _children(self):
         for gi in range(self.tree.topLevelItemCount()):
             g = self.tree.topLevelItem(gi)

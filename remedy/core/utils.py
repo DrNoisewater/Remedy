@@ -17,7 +17,7 @@ from pathlib import Path
 IS_WINDOWS = sys.platform == "win32"
 APP_NAME = "Remedy"
 APP_PUBLISHER = "Noisewater Labs"
-APP_VERSION = "1.2.1"
+APP_VERSION = "1.3.0"
 CREATE_NO_WINDOW = 0x08000000 if IS_WINDOWS else 0
 
 
@@ -65,6 +65,11 @@ DEFAULT_SETTINGS = {
     "duplicate_min_mb": 1.0,
     "max_large_results": 5000,
     "window_geometry": "",
+    "nav_collapsed": [],              # sidebar groups the user folded away
+    "privacy_mode": True,             # redact computer/user names in exported reports
+    "session_retention_days": 90,     # technician sessions older than this are deleted (0 = keep forever)
+    "last_profile": "",               # New PC Setup: the profile "My Standard Setup" reuses
+    "detail_level": "basic",          # basic | technician (how much raw evidence is shown by default)
 }
 
 

@@ -15,7 +15,8 @@ from ..core import junk, maintenance, optimize, osinfo, programs, startup, sysin
 from ..core.utils import (APP_DIR, APP_NAME, APP_PUBLISHER, APP_VERSION, IS_WINDOWS, LOG_FILE, fmt_duration,
                           human_size, is_admin, list_drives, open_location, open_target, run_stream, settings,
                           system_drive)
-from .widgets import (BasePage, Card, Console, GradientLabel, ProgressRow, ScoreRing, StatTile, button, confirm, label,
+from .widgets import (BasePage, Card, Console, GradientLabel, ProgressRow, ResponsiveGrid, ScoreRing, StatTile, button,
+                      confirm, label,
                       make_tree, pill, set_bar_level, size_widths)
 
 
@@ -151,20 +152,15 @@ class DashboardPage(BasePage):
         chips.addWidget(pill("Administrator" if admin else "Limited mode", theme.OK if admin else theme.WARN))
         chips.addStretch(1)
         self.root.addLayout(chips)
-        grid = QGridLayout()
-        grid.setSpacing(14)
+        self.root.addWidget(self._hero())
         self.cpu = StatTile("CPU", spark_color=theme.ACCENT)
         self.mem = StatTile("Memory", spark_color=theme.ACCENT2)
         self.disk = StatTile("System drive", bar=True)
         self.up = StatTile("Uptime")
-        for i, t in enumerate((self.cpu, self.mem, self.disk, self.up)):
-            grid.addWidget(t, 0, i)
-        self.root.addLayout(grid)
+        self.root.addWidget(ResponsiveGrid((self.cpu, self.mem, self.disk, self.up), 170))
         self.progress = ProgressRow()
         self.root.addWidget(self.progress)
 
-        row = QHBoxLayout()
-        row.setSpacing(14)
         health = Card("System health")
         hl = QHBoxLayout()
         hl.setSpacing(24)
@@ -176,21 +172,20 @@ class DashboardPage(BasePage):
         self._intro()
         hl.addLayout(self.recs, 1)
         health.body.addLayout(hl)
-        row.addWidget(health, 3)
         drives = Card("Drives")
         self.drives = QVBoxLayout()
         self.drives.setSpacing(10)
         drives.body.addLayout(self.drives)
         drives.body.addStretch(1)
-        row.addWidget(drives, 2)
-        self.root.addLayout(row, 1)
+        self.root.addWidget(ResponsiveGrid((health, drives), 360), 1)
 
-        quick = QHBoxLayout()
-        for text, key in (("Clean junk", "cleaner"), ("Find large files", "large"), ("Startup apps", "startup"),
-                          ("Tweaks", "tweaks"), ("Remove bloat", "bloat"), ("Repair Windows", "maintenance")):
-            quick.addWidget(button(text, "", lambda _=False, k=key: self.main.navigate(k)))
-        quick.addStretch(1)
-        self.root.addLayout(quick)
+        quick = [button(text, "", lambda _=False, k=key: self.main.navigate(k))
+                 for text, key in (("Clean junk", "cleaner"), ("Find large files", "large"), ("Startup apps", "startup"),
+                                   ("Tweaks", "tweaks"), ("Remove bloat", "bloat"), ("Repair Windows", "maintenance"))]
+        self.root.addWidget(ResponsiveGrid(quick, 128, spacing=8))
+        for card in (health, drives):
+            card.setMinimumHeight(250)
+        self.make_scrollable()
 
         psutil.cpu_percent(None)
         self.timer = QTimer(self)
@@ -200,8 +195,82 @@ class DashboardPage(BasePage):
         self.drive_timer.setInterval(30000)
         self.drive_timer.timeout.connect(self.refresh_drives)
 
+    # ---------------------------------------------------------------- start-here row
+    def _hero(self):
+        diag = Card("Last diagnosis")
+        self.h_diag_title = label("Not diagnosed yet", "h2")
+        self.h_diag_body = label("Run a Quick Scan to find out what's wrong, why, and what to do next. Scanning "
+                                 "changes nothing.", "muted", wrap=True)
+        diag.body.addWidget(self.h_diag_title)
+        diag.body.addWidget(self.h_diag_body, 1)
+        b = QHBoxLayout()
+        self.h_view = button("View findings", "", lambda: self.main.navigate("diagnose"))
+        b.addWidget(self.h_view)
+        b.addWidget(button("Quick Scan", "", lambda: (self.main.navigate("diagnose"),
+                                                      self.main.pages["diagnose"].start("quick"))))
+        b.addStretch(1)
+        diag.body.addLayout(b)
+        sec = Card("Security")
+        self.h_sec_title = label("Not assessed", "h2")
+        self.h_sec_body = label("Checked as part of a diagnosis.", "muted", wrap=True)
+        sec.body.addWidget(self.h_sec_title)
+        sec.body.addWidget(self.h_sec_body, 1)
+        sec.body.addWidget(button("Security Center", "", lambda: self.main.navigate("security")), 0, Qt.AlignLeft)
+        hero = QFrame()
+        hero.setObjectName("hero")
+        hl = QVBoxLayout(hero)
+        hl.setContentsMargins(20, 16, 20, 16)
+        hl.setSpacing(8)
+        hl.addWidget(label("TECHNICIAN WORKFLOWS", "kicker"))
+        hl.addWidget(label("Fix a problem PC, or prepare a new one with a reusable profile.", "muted", wrap=True))
+        hl.addStretch(1)
+        hl.addWidget(button("Diagnose && Repair", "primary", lambda: self.main.navigate("diagnose")))
+        hl.addWidget(button("Set Up a New PC", "", lambda: self.main.navigate("newpc")))
+        for card in (diag, sec, hero):
+            card.setMinimumHeight(178)      # wrapped text doesn't report its height to grid layouts
+        return ResponsiveGrid((diag, sec, hero), 260)
+
+    def refresh_summary(self):
+        from ..core import diagnostics as D
+        from ..core import sessions as S
+        page = self.main.pages.get("diagnose") if hasattr(self.main, "pages") else None
+        s = getattr(page, "session", None) or S.latest("diagnostic")
+        if not s:
+            return
+        c = D.summary_counts(s)
+        serious = c["high"] + c["medium"]
+        when = time.strftime("%d %b, %H:%M", time.localtime(s.get("started") or 0))
+        self.h_diag_title.setText(f"{serious} item{'s' if serious != 1 else ''} need attention" if serious
+                                  else "No serious problems found")
+        self.h_diag_title.setStyleSheet(f"color: {theme.DANGER if c['high'] else theme.WARN if serious else theme.OK};")
+        tops = [f for f in s.get("findings") or [] if f["id"] not in (s.get("dismissed") or {})][:3]
+        lines = [f"{theme.SEVERITY.get(f['severity'], ('', f['severity']))[1]}: {f['title']}" for f in tops]
+        na = D.not_assessed(s)
+        self.h_diag_body.setText(f"Scanned {when}. " + (" · ".join(lines) if lines else "Nothing flagged.")
+                                 + (f" ({len(na)} area(s) not fully assessed.)" if na else ""))
+        ev = s.get("evidence") or {}
+        prov = (s.get("providers") or {}).get("security", {})
+        if prov.get("status") == "complete":
+            rt = (ev.get("security.defender_realtime") or {}).get("value")
+            others = [n for n in (ev.get("security.av_products") or {}).get("value") or [] if "defender" not in n.lower()]
+            sec_f = [f for f in s.get("findings") or [] if f["category"] == "Security" and f["severity"] in ("high", "medium")]
+            if rt or others:
+                self.h_sec_title.setText("Protected" if not sec_f else "Protected · review")
+                self.h_sec_title.setStyleSheet(f"color: {theme.OK if not sec_f else theme.WARN};")
+            else:
+                self.h_sec_title.setText("Not protected")
+                self.h_sec_title.setStyleSheet(f"color: {theme.DANGER};")
+            self.h_sec_body.setText(("Microsoft Defender is on" if rt else f"{', '.join(others)} is on" if others else
+                                     "No active antivirus found") + (f" · {len(sec_f)} item(s) to review" if sec_f else
+                                                                     "") + f" · as of {when}")
+        else:
+            self.h_sec_title.setText("Not assessed")
+            self.h_sec_title.setStyleSheet(f"color: {theme.FAINT};")
+            self.h_sec_body.setText(prov.get("message") or "Run a diagnosis to check protection status.")
+
     def showEvent(self, e):
         super().showEvent(e)
+        self.refresh_summary()
         self.tick()
         self.refresh_drives()
         self.timer.start()
@@ -313,8 +382,9 @@ class MaintenancePage(BasePage):
         super().__init__(main)
         self.actions_list = maintenance.build_actions()
         self.buttons = []
+        self.cards = {}
         split = QSplitter(Qt.Vertical)
-        scroll = QScrollArea()
+        scroll = self.scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)
         holder = QWidget()
@@ -364,6 +434,7 @@ class MaintenancePage(BasePage):
                 b.setText("Needs admin")
             card.body.addWidget(b, 0, Qt.AlignLeft)
             self.buttons.append((b, a))
+            self.cards[a.title.lower()] = card
             grid.addWidget(card, i // 3, i % 3)
             i += 1
         outer.addStretch(1)
@@ -380,6 +451,25 @@ class MaintenancePage(BasePage):
         split.addWidget(bottom)
         split.setSizes([480, 220])
         self.root.addWidget(split, 1)
+
+    def open_route(self, params: dict) -> None:
+        """{"search": text}: scroll to the first action whose title contains text and highlight it briefly."""
+        q = str(params.get("search") or "").lower()
+        if not q:
+            return
+        for title, card in self.cards.items():
+            if q in title:
+                QTimer.singleShot(60, lambda c=card: self.scroll.ensureWidgetVisible(c, 0, 40))
+                card.setProperty("tone", "accent")
+                card.style().unpolish(card)
+                card.style().polish(card)
+
+                def unflash(c=card):
+                    c.setProperty("tone", "")
+                    c.style().unpolish(c)
+                    c.style().polish(c)
+                QTimer.singleShot(2500, unflash)
+                break
 
     def set_busy_ui(self, busy):
         for b, a in self.buttons:
@@ -479,9 +569,6 @@ class SettingsPage(BasePage):
 
     def __init__(self, main):
         super().__init__(main)
-        row = QHBoxLayout()
-        row.setSpacing(14)
-
         prefs = Card("Safety")
         for key, text in (("use_recycle_bin", "Send deleted files to the Recycle Bin (recommended)"),
                           ("restore_point_before_tweaks", "Create a restore point before applying tweaks"),
@@ -499,6 +586,22 @@ class SettingsPage(BasePage):
         lim.addWidget(spin)
         lim.addStretch(1)
         prefs.body.addLayout(lim)
+        prefs.body.addWidget(label("PRIVACY & TECHNICIAN SESSIONS", "cardtitle"))
+        priv = QCheckBox("Privacy mode: redact computer and user names in exported reports (recommended)")
+        priv.setChecked(bool(settings.get("privacy_mode")))
+        priv.toggled.connect(lambda v: settings.set("privacy_mode", v))
+        prefs.body.addWidget(priv)
+        ret = QHBoxLayout()
+        ret.addWidget(label("Delete sessions older than (days, 0 = keep)", "muted"))
+        rspin = QSpinBox()
+        rspin.setRange(0, 3650)
+        rspin.setValue(int(settings.get("session_retention_days")))
+        rspin.valueChanged.connect(lambda v: settings.set("session_retention_days", v))
+        ret.addWidget(rspin)
+        ret.addStretch(1)
+        prefs.body.addLayout(ret)
+        prefs.body.addWidget(label(f"Sessions: {APP_DIR / 'sessions'} · Profiles: {APP_DIR / 'profiles'} (or a "
+                                   "RemedyData folder next to Remedy.exe for portable USB use).", "faint", wrap=True))
         status = Card("Privileges")
         admin = is_admin()
         st = label("● Administrator: full access" if admin else "● Standard user: some features limited")
@@ -508,7 +611,6 @@ class SettingsPage(BasePage):
             status.body.addWidget(button("Restart as administrator", "primary", self.main.relaunch_admin), 0, Qt.AlignLeft)
         status.body.addWidget(button("Open data folder", "", lambda: open_location(str(APP_DIR))), 0, Qt.AlignLeft)
         prefs.body.addStretch(1)
-        row.addWidget(prefs, 3)
 
         excl = Card("Excluded folders (never scanned)")
         self.excl = QListWidget()
@@ -534,17 +636,19 @@ class SettingsPage(BasePage):
         at.addWidget(label(f"Made by {APP_PUBLISHER}", "muted"))
         at.addSpacing(6)
         at.addWidget(label(f"This PC: {osinfo.detect().summary()}", "muted", wrap=True))
-        at.addWidget(label("Shortcuts: F5 refresh or scan · Ctrl+F search · Esc cancel · Ctrl+1–9 jump to a page",
-                           "muted", wrap=True))
+        at.addWidget(label("Shortcuts: Ctrl+K search everything · Alt+Left/Right or mouse side buttons go back/"
+                           "forward · F5 refresh or scan · Ctrl+F search this page · Esc asks to stop a task · "
+                           "Ctrl+1–9 jump to a page", "muted", wrap=True))
         at.addStretch(1)
         ab.addLayout(at, 1)
         about.body.addLayout(ab)
-        side = QVBoxLayout()
+        side_w = QWidget()
+        side = QVBoxLayout(side_w)
+        side.setContentsMargins(0, 0, 0, 0)
         side.addWidget(about)
         side.addWidget(status)
         side.addWidget(excl, 1)
-        row.addLayout(side, 2)
-        self.root.addLayout(row)
+        self.root.addWidget(ResponsiveGrid((prefs, side_w), 420))
 
         logc = Card("Activity log")
         self.console = Console()
@@ -556,7 +660,10 @@ class SettingsPage(BasePage):
             pass
         logc.body.addWidget(self.console)
         logc.body.addWidget(button("Open full log", "", lambda: open_target(str(LOG_FILE))), 0, Qt.AlignLeft)
+        self.console.setMinimumHeight(160)
+        self.excl.setMinimumHeight(90)
         self.root.addWidget(logc, 1)
+        self.make_scrollable()
         main.log_bus.message.connect(self.console.add)
 
     def _add_excl(self):

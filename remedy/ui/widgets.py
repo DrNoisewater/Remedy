@@ -9,7 +9,8 @@ from collections import deque
 from PySide6.QtCore import QEasingCurve, QObject, QRectF, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import (QBrush, QColor, QFont, QFontDatabase, QIcon, QLinearGradient, QPainter,
                            QPainterPath, QPen, QPixmap)
-from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QFileDialog, QFrame, QHBoxLayout, QHeaderView,
+from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QFileDialog, QFrame, QGridLayout, QHBoxLayout,
+                               QHeaderView,
                                QLabel, QPlainTextEdit, QProgressBar, QPushButton,
                                QSizePolicy, QStyledItemDelegate, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
                                QWidget)
@@ -800,6 +801,67 @@ class LocationPicker(QWidget):
         return list(self.combo.currentData() or [])
 
 
+class ResponsiveGrid(QWidget):
+    """Lays its widgets out in as many equal columns as fit (each at least min_col px wide), dropping to fewer
+    columns in a narrow window or at high DPI scaling instead of squashing or clipping them."""
+
+    def __init__(self, widgets, min_col: int = 260, spacing: int = 14, max_cols: int = 0, parent=None):
+        super().__init__(parent)
+        self.items = list(widgets)
+        self.min_col, self.max_cols = min_col, max_cols or len(self.items)
+        self.grid = QGridLayout(self)
+        self.grid.setContentsMargins(0, 0, 0, 0)
+        self.grid.setSpacing(spacing)
+        self.cols = 0
+        self._place(self.max_cols)
+
+    def _place(self, cols: int):
+        cols = max(1, min(self.max_cols, cols))
+        if cols == self.cols:
+            return
+        self.cols = cols
+        for w in self.items:
+            self.grid.removeWidget(w)
+        for c in range(self.max_cols):
+            self.grid.setColumnStretch(c, 1 if c < cols else 0)
+        for i, w in enumerate(self.items):
+            self.grid.addWidget(w, i // cols, i % cols)
+        # We usually get here from inside the parent's layout pass, where a size change is ignored; tell the
+        # parent right after that pass instead, so it makes room for the extra rows.
+        QTimer.singleShot(0, self._announce)
+
+    def _announce(self):
+        from PySide6.QtCore import QCoreApplication, QEvent
+        from PySide6.QtWidgets import QScrollArea
+        self.grid.invalidate()
+        self.updateGeometry()
+        w = self.parentWidget()
+        while w is not None:
+            if w.layout() is not None:
+                w.layout().invalidate()
+            if isinstance(w, QScrollArea):           # make the scroll area re-measure its (now taller) content
+                QCoreApplication.postEvent(w, QEvent(QEvent.LayoutRequest))
+                break
+            w = w.parentWidget()
+
+    def minimumSizeHint(self):
+        # Only ask for one column's width, so a scroll area can hand us the real (narrow) width and we re-flow;
+        # the height is whatever the current arrangement needs.
+        from PySide6.QtCore import QSize
+        return QSize(self.min_col, self.grid.minimumSize().height())
+
+    def sizeHint(self):
+        from PySide6.QtCore import QSize
+        return QSize(self.min_col * self.cols, max(self.grid.sizeHint().height(), self.grid.minimumSize().height()))
+
+    def hasHeightForWidth(self):
+        return False        # our minimum height already matches the current arrangement
+
+    def resizeEvent(self, e):
+        super().resizeEvent(e)
+        self._place(max(1, (e.size().width() + self.grid.spacing()) // (self.min_col + self.grid.spacing())))
+
+
 # --------------------------------------------------------------------------- page base
 class BasePage(QWidget):
     title = ""
@@ -814,7 +876,7 @@ class BasePage(QWidget):
         self.root = QVBoxLayout(self)
         self.root.setContentsMargins(30, 26, 30, 22)
         self.root.setSpacing(14)
-        head = QHBoxLayout()
+        head = self._head = QHBoxLayout()
         titles = QVBoxLayout()
         titles.setSpacing(2)
         titles.addWidget(label(self.title, "h1"))
@@ -826,6 +888,42 @@ class BasePage(QWidget):
         self.actions.setSpacing(8)
         head.addLayout(self.actions)
         self.root.addLayout(head)
+
+    def resizeEvent(self, e):
+        super().resizeEvent(e)
+        # Narrow window / big text: move the page's action buttons under the title instead of squashing them.
+        from PySide6.QtWidgets import QBoxLayout
+        need = self.actions.sizeHint().width() + 260 + 60
+        want = QBoxLayout.TopToBottom if e.size().width() < need else QBoxLayout.LeftToRight
+        if self._head.direction() != want:
+            self._head.setDirection(want)
+            self._head.setAlignment(self.actions, Qt.AlignLeft if want == QBoxLayout.TopToBottom else Qt.Alignment())
+
+    def make_scrollable(self) -> None:
+        """Move everything below the page header into a vertical scroll area, so small windows and high DPI
+        scale settings scroll instead of squashing or overlapping content."""
+        from PySide6.QtWidgets import QScrollArea
+        body = QWidget()
+        body.setObjectName("page")
+        lay = QVBoxLayout(body)
+        lay.setContentsMargins(0, 0, 4, 0)
+        lay.setSpacing(self.root.spacing())
+        while self.root.count() > 1:
+            stretch = self.root.stretch(1)
+            item = self.root.takeAt(1)
+            if item.widget():
+                lay.addWidget(item.widget(), stretch)
+            elif item.layout():
+                lay.addLayout(item.layout(), stretch)
+            elif item.spacerItem():
+                lay.addItem(item.spacerItem())
+        sc = QScrollArea()
+        sc.setWidgetResizable(True)
+        sc.setFrameShape(QFrame.NoFrame)
+        sc.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)   # last resort: scroll rather than clip
+        sc.setWidget(body)
+        self.root.addWidget(sc, 1)
+        self.body_layout = lay
 
     def add_action(self, text: str, kind: str = "", slot=None, tooltip: str = "") -> QPushButton:
         b = button(text, kind, slot, tooltip)
@@ -840,6 +938,17 @@ class BasePage(QWidget):
 
     def on_first_show(self):
         pass
+
+    def open_route(self, params: dict) -> None:
+        """Called on every navigation to this page (including Back/Forward). params restore a sub-view.
+        Default: {"search": text} fills the page's search box if it has one."""
+        box = getattr(self, "search", None)
+        if "search" in params and box is not None and hasattr(box, "setText"):
+            box.setText(str(params["search"]))
+
+    def route_label(self, params: dict) -> str:
+        """Breadcrumb text for a sub-view ("" = the page itself)."""
+        return ""
 
     def busy(self) -> bool:
         if self.worker is not None and self.worker.isRunning():
@@ -858,13 +967,19 @@ class BasePage(QWidget):
             return None
         if progress is not None:
             progress.start(text, cancellable)
-            try:
-                progress.cancel_requested.disconnect()
-            except (RuntimeError, TypeError):
-                pass
+            import warnings
+            with warnings.catch_warnings():          # nothing connected yet is fine
+                warnings.simplefilter("ignore", RuntimeWarning)
+                try:
+                    progress.cancel_requested.disconnect()
+                except (RuntimeError, TypeError):
+                    pass
             progress.cancel_requested.connect(self.cancel_task)
         activity = getattr(self.main, "activity", None)
         token = activity.start(getattr(self, "key", ""), self.title, text) if activity is not None else None
+        center = getattr(self.main, "tasks", None)
+        task_id = center.start(self.title, getattr(self, "key", ""), text,
+                               cancel=self.cancel_task if cancellable else None) if center is not None else None
 
         def done(result):
             self.worker = None
@@ -878,6 +993,8 @@ class BasePage(QWidget):
                 progress.stop(True, line)
             if token is not None:
                 activity.finish(token, True, line)
+            if task_id is not None:
+                center.finish(task_id, "done", line)
             self.set_busy_ui(False)
             if on_done:
                 on_done(result)
@@ -889,6 +1006,9 @@ class BasePage(QWidget):
                 progress.stop(False, "Cancelled" if cancelled else "Stopped by an error")
             if token is not None:
                 activity.finish(token, False, "Cancelled" if cancelled else "Failed")
+            if task_id is not None:
+                center.finish(task_id, "cancelled" if cancelled else "failed",
+                              "Cancelled" if cancelled else (msg.splitlines()[0] if msg else "Failed"))
             self.set_busy_ui(False)
             if cancelled:
                 self.main.notify("warning", f"{self.title}: cancelled", "Nothing further was changed.")
@@ -900,6 +1020,8 @@ class BasePage(QWidget):
         def prog(text_, pct):
             if token is not None:
                 activity.update(token, text_, pct)
+            if task_id is not None:
+                center.update(task_id, text_, pct)
             if on_progress is not None:
                 on_progress(text_, pct)
             elif progress is not None:
