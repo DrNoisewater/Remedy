@@ -54,6 +54,17 @@ def test_tweak_catalogue_is_consistent():
     assert orders == sorted(orders)
 
 
+def test_every_tweak_explains_its_gain():
+    items = tweaks.build_tweaks()
+    assert set(tweaks.IMPACT) == {t.id for t in items}, "every tweak needs exactly one IMPACT entry"
+    for t in items:
+        assert t.area in tweaks.AREAS, t.id
+        assert t.gain and t.notice and t.tradeoff, t.id
+        assert len(t.gain) <= 50, f"{t.id}: gain text too long for the list column"
+    assert tweaks.gain_tally([t for t in items if t.id in ("animations", "menu_delay", "ad_id")]) == \
+        "2 speed · 1 privacy"
+
+
 def test_presets_point_at_real_tweaks():
     ids = {t.id for t in tweaks.build_tweaks()}
     for name, members in tweaks.PRESETS.items():

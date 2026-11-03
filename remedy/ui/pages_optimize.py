@@ -157,6 +157,8 @@ class StartupPage(BasePage):
 
 # =========================================================================== Tweaks
 RISK_COLORS = {"Safe": theme.OK, "Moderate": theme.WARN, "Advanced": theme.DANGER}
+AREA_COLORS = {"Speed": theme.ACCENT, "Space": theme.INFO, "Gaming": "#a78bfa", "Privacy": "#f472b6",
+               "Security": "#fbbf24", "Stability": "#34d399", "Comfort": "#9aa4b8"}
 
 
 def _statuses(ctx, items):
@@ -191,8 +193,8 @@ def _apply(ctx, to_apply, to_revert, restore_point):
 
 class TweaksPage(BasePage):
     title = "Tweaks"
-    subtitle = ("Ticked means on. Tick or untick, then press Apply changes. "
-                "Original settings are saved, so you can untick any tweak to undo it.")
+    subtitle = ("Ticked means on. Click any tweak to see what it does and what you'll gain, tick or untick, "
+                "then press Apply changes. Original settings are saved, so you can untick to undo.")
 
     def __init__(self, main):
         super().__init__(main)
@@ -222,9 +224,10 @@ class TweaksPage(BasePage):
         self.root.addLayout(banner)
         self.progress = ProgressRow()
         self.root.addWidget(self.progress)
-        self.tree = make_tree(["Tweak", "Risk", "Status", "Takes effect"], multi=False, sortable=False)
+        self.tree = make_tree(["Tweak", "What you gain", "Risk", "Status", "Takes effect"], multi=False,
+                              sortable=False)
         self.tree.setRootIsDecorated(True)
-        size_widths(self.tree, {1: 100, 2: 150, 3: 150})
+        size_widths(self.tree, {1: 330, 2: 95, 3: 130, 4: 140})
         self.tree.currentItemChanged.connect(self._describe)
         self.tree.itemChanged.connect(self._changed)
         self.root.addWidget(self.tree, 1)
@@ -233,9 +236,11 @@ class TweaksPage(BasePage):
         bottom.addWidget(self.summary, 1)
         self.root.addLayout(bottom)
         card = Card()
-        self.desc_title = label("Select a tweak to see what it does.", "")
-        self.desc_title.setStyleSheet("font-weight: 600;")
-        self.desc = label("", "muted", wrap=True)
+        self.desc_title = label("Click a tweak to see what it does, what you'll notice and the trade-off.", "")
+        self.desc_title.setStyleSheet("font-weight: 700; font-size: 11pt;")
+        self.desc = label("Gains are typical results, not promises; every PC is different.", "muted", wrap=True)
+        self.desc.setTextFormat(Qt.RichText)
+        self.desc.setMinimumHeight(64)
         card.body.addWidget(self.desc_title)
         card.body.addWidget(self.desc)
         self.root.addWidget(card)
@@ -250,25 +255,27 @@ class TweaksPage(BasePage):
         for t in self.tweaks:
             g = groups.get(t.category)
             if g is None:
-                g = QTreeWidgetItem([t.category, "", "", ""])
+                g = QTreeWidgetItem([t.category, "", "", "", ""])
                 g.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsAutoTristate)
                 f = g.font(0)
                 f.setBold(True)
                 g.setFont(0, f)
                 self.tree.addTopLevelItem(g)
                 groups[t.category] = g
-            it = QTreeWidgetItem([t.name, t.risk, "Checking…", t.restart or "Immediately"])
+            it = QTreeWidgetItem([t.name, f"{t.area}  ·  {t.gain}", t.risk, "Checking…", t.restart or "Immediately"])
             it.setData(0, OBJ_ROLE, t)
-            it.setForeground(1, QColor(RISK_COLORS.get(t.risk, theme.MUTED)))
+            it.setForeground(1, QColor(AREA_COLORS.get(t.area, theme.MUTED)))
+            it.setToolTip(1, f"{t.notice}\nTrade-off: {t.tradeoff}")
+            it.setForeground(2, QColor(RISK_COLORS.get(t.risk, theme.MUTED)))
             flags = Qt.ItemIsSelectable | Qt.ItemIsUserCheckable
             usable, why = t.availability(self.os)
             if usable and (admin or not t.admin):
                 flags |= Qt.ItemIsEnabled
             elif usable:
-                it.setText(3, "Needs administrator")
+                it.setText(4, "Needs administrator")
             else:
-                it.setText(2, why)
-                it.setText(3, "")
+                it.setText(3, why)
+                it.setText(4, "")
             if self.os.laptop and t.laptop_note:
                 it.setToolTip(0, "On laptops: " + t.laptop_note)
             it.setFlags(flags)
@@ -333,8 +340,8 @@ class TweaksPage(BasePage):
             checked = it.checkState(0) == Qt.Checked
             usable, why = t.availability(self.os)
             if not usable:
-                it.setText(2, why)
-                it.setForeground(2, QColor(theme.MUTED))
+                it.setText(3, why)
+                it.setForeground(3, QColor(theme.MUTED))
                 continue
             if checked and not st:
                 text, color = "Will be applied", theme.ACCENT
@@ -346,34 +353,44 @@ class TweaksPage(BasePage):
                 text, color = "Unknown", theme.MUTED
             else:
                 text, color = "Off", theme.MUTED
-            it.setText(2, text)
-            it.setForeground(2, QColor(color))
+            it.setText(3, text)
+            it.setForeground(3, QColor(color))
         self.tree.blockSignals(False)
         to_apply, to_revert = self._pending()
         on = sum(1 for v in self.state.values() if v)
         usable = sum(1 for t in self.tweaks if t.availability(self.os)[0])
         parts = [f"{on} of {usable} tweaks on"]
         if to_apply or to_revert:
-            parts.append(f"{len(to_apply)} to apply, {len(to_revert)} to undo")
+            gains = f" ({tweaks.gain_tally(to_apply)})" if to_apply else ""
+            parts.append(f"{len(to_apply)} to apply{gains}, {len(to_revert)} to undo")
         self.summary.setText(" · ".join(parts))
         self.btn_apply.setEnabled(bool(to_apply or to_revert) and (self.worker is None))
         self.btn_reset.setEnabled(bool(to_apply or to_revert))
 
     def _describe(self, item, _prev):
         t = item.data(0, OBJ_ROLE) if item else None
-        if t:
-            extra = []
-            if t.admin:
-                extra.append("Needs administrator.")
-            if t.restart:
-                extra.append(f"Takes effect after: {t.restart.lower()}.")
-            usable, why = t.availability(self.os)
-            if not usable:
-                extra.append(f"Not available here ({why}).")
-            if t.laptop_note:
-                extra.append(f"On laptops: {t.laptop_note}")
-            self.desc_title.setText(f"{t.name}  ·  {t.risk}")
-            self.desc.setText(" ".join([t.description] + extra))
+        if not t:
+            return
+        from html import escape
+        color = AREA_COLORS.get(t.area, theme.MUTED)
+        notes = []
+        if t.admin:
+            notes.append("Needs administrator.")
+        if t.restart:
+            notes.append(f"Takes effect after: {t.restart.lower()}.")
+        usable, why = t.availability(self.os)
+        if not usable:
+            notes.append(f"Not available here ({why}).")
+        if t.laptop_note:
+            notes.append(f"On laptops: {t.laptop_note}")
+        notes.append("Gains are typical results; every PC is different.")
+        self.desc_title.setText(f"{t.name}  ·  {t.risk}")
+        self.desc.setText(
+            f"<span style='color:{color}; font-weight:700'>{escape(t.area)}: {escape(t.gain)}</span><br>"
+            f"<b style='color:{theme.TEXT}'>What it does:</b> {escape(t.description)}<br>"
+            f"<b style='color:{theme.TEXT}'>What you'll notice:</b> {escape(t.notice)}<br>"
+            f"<b style='color:{theme.TEXT}'>Trade-off:</b> {escape(t.tradeoff)}<br>"
+            f"<span style='color:{theme.MUTED}'>{escape(' '.join(notes))}</span>")
 
     def _tick(self, ids, label_text):
         ids = set(ids)
@@ -418,7 +435,7 @@ class TweaksPage(BasePage):
             lines.append(f"turn on {len(to_apply)}")
         if to_revert:
             lines.append(f"undo {len(to_revert)}")
-        bullets = [f"On: {t.name}" + ("" if t.risk == "Safe" else f" ({t.risk})") for t in to_apply]
+        bullets = [f"On: {t.name} → {t.gain}" + ("" if t.risk == "Safe" else f" ({t.risk})") for t in to_apply]
         bullets += [f"Undo: {t.name}" for t in to_revert]
         rp = bool(settings.get("restore_point_before_tweaks")) and is_admin() and bool(to_apply)
         text = ("A restore point is created first, so you can roll everything back." if rp else
