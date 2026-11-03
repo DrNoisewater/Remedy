@@ -17,7 +17,7 @@ from pathlib import Path
 IS_WINDOWS = sys.platform == "win32"
 APP_NAME = "Remedy"
 APP_PUBLISHER = "Noisewater Labs"
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.2.0"
 CREATE_NO_WINDOW = 0x08000000 if IS_WINDOWS else 0
 
 
