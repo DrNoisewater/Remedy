@@ -11,12 +11,12 @@ from PySide6.QtWidgets import (QCheckBox, QFrame, QGridLayout, QHBoxLayout, QLis
                                QSpinBox, QSplitter, QTreeWidgetItem, QVBoxLayout, QWidget)
 
 from .. import theme
-from ..core import junk, maintenance, startup, sysinfo
+from ..core import junk, maintenance, optimize, osinfo, programs, startup, sysinfo
 from ..core.utils import (APP_DIR, APP_NAME, APP_PUBLISHER, APP_VERSION, IS_WINDOWS, LOG_FILE, fmt_duration,
                           human_size, is_admin, list_drives, open_location, open_target, run_stream, settings,
                           system_drive)
 from .widgets import (BasePage, Card, Console, GradientLabel, ProgressRow, ScoreRing, StatTile, button, confirm, label,
-                      make_tree, set_bar_level, size_widths)
+                      make_tree, pill, set_bar_level, size_widths)
 
 
 def _clear(layout):
@@ -57,6 +57,20 @@ def _health(ctx):
         data["hiberfil"] = os.path.getsize(os.path.join(system_drive(), "hiberfil.sys")) if IS_WINDOWS else 0
     except OSError:
         data["hiberfil"] = 0
+    info = osinfo.detect()
+    data["laptop"] = info.laptop
+    data["os"] = info.short()
+    if IS_WINDOWS:
+        ctx.progress("Checking recommended tweaks…", 90, force=True)
+        try:
+            data["tweaks_pending"] = len(optimize.pending_tweaks(info, data["admin"]))
+        except Exception:  # noqa: BLE001
+            data["tweaks_pending"] = 0
+        ctx.progress("Looking for bloatware…", 95, force=True)
+        try:
+            data["bloat"] = sum(1 for a in programs.list_appx() if a["recommended"])
+        except Exception:  # noqa: BLE001
+            data["bloat"] = 0
     return data
 
 
@@ -87,7 +101,24 @@ def score_health(d) -> tuple:
         score -= 5
         recs.append(("info", f"No restart in {d['uptime_days']:.0f} days. A reboot clears leaks and finishes updates",
                      "", ""))
-    if d["hiberfil"] > 4e9 and d["free_pct"] < 25:
+    pending = d.get("tweaks_pending", 0)
+    if pending >= 5:
+        score -= 6
+        recs.append(("warn", f"{pending} recommended tweaks for {d.get('os', 'Windows')} aren't on yet",
+                     "tweaks", "Review tweaks"))
+    elif pending:
+        recs.append(("info", f"{pending} recommended tweak{'s' if pending != 1 else ''} not on yet",
+                     "tweaks", "Review tweaks"))
+    bloat = d.get("bloat", 0)
+    if bloat >= 3:
+        score -= 6
+        recs.append(("warn", f"{bloat} preinstalled bloatware apps are taking up space", "bloat", "Remove bloat"))
+    elif bloat:
+        recs.append(("info", f"{bloat} bloatware app{'s' if bloat != 1 else ''} installed", "bloat", "Remove bloat"))
+    if d.get("laptop"):
+        recs.append(("info", "This is a laptop: check how much your battery has worn", "maintenance",
+                     "Battery report"))
+    if d["hiberfil"] > 4e9 and d["free_pct"] < 25 and not d.get("laptop"):
         recs.append(("info", f"hiberfil.sys uses {human_size(d['hiberfil'])}. Turn off hibernation to reclaim it",
                      "tweaks", "Tweaks"))
     if not d["admin"]:
@@ -104,7 +135,22 @@ class DashboardPage(BasePage):
 
     def __init__(self, main):
         super().__init__(main)
-        self.btn_check = self.add_action("Run health check", "primary", self.run_check)
+        self.btn_check = self.add_action("Run health check", "", self.run_check, "Score this PC and list what to fix")
+        self.add_action("One-click optimize", "primary", self.optimize,
+                        "Clean junk, apply recommended tweaks and more, in one go")
+        info = osinfo.detect()
+        chips = QHBoxLayout()
+        chips.setSpacing(8)
+        chips.addWidget(pill(info.short() if info.is_windows else f"{info.family} (preview)", theme.ACCENT))
+        if info.is_windows:
+            if info.edition_name:
+                chips.addWidget(pill(info.edition_name, theme.INFO))
+            chips.addWidget(pill(f"Build {info.build}", theme.MUTED))
+        chips.addWidget(pill(info.form, theme.ACCENT2))
+        admin = is_admin()
+        chips.addWidget(pill("Administrator" if admin else "Limited mode", theme.OK if admin else theme.WARN))
+        chips.addStretch(1)
+        self.root.addLayout(chips)
         grid = QGridLayout()
         grid.setSpacing(14)
         self.cpu = StatTile("CPU", spark_color=theme.ACCENT)
@@ -124,11 +170,10 @@ class DashboardPage(BasePage):
         hl.setSpacing(24)
         hl.setContentsMargins(4, 4, 4, 4)
         self.ring = ScoreRing()
-        hl.addWidget(self.ring, 0, Qt.AlignVCenter)
+        hl.addWidget(self.ring, 0, Qt.AlignTop)
         self.recs = QVBoxLayout()
         self.recs.setSpacing(8)
-        self.recs.addWidget(label("Run a health check to get a score and a personalised fix list.", "muted", wrap=True))
-        self.recs.addStretch(1)
+        self._intro()
         hl.addLayout(self.recs, 1)
         health.body.addLayout(hl)
         row.addWidget(health, 3)
@@ -142,7 +187,7 @@ class DashboardPage(BasePage):
 
         quick = QHBoxLayout()
         for text, key in (("Clean junk", "cleaner"), ("Find large files", "large"), ("Startup apps", "startup"),
-                          ("Tweaks", "tweaks"), ("New PC setup", "setup"), ("Remove bloat", "bloat")):
+                          ("Tweaks", "tweaks"), ("Remove bloat", "bloat"), ("Repair Windows", "maintenance")):
             quick.addWidget(button(text, "", lambda _=False, k=key: self.main.navigate(k)))
         quick.addStretch(1)
         self.root.addLayout(quick)
@@ -197,27 +242,66 @@ class DashboardPage(BasePage):
     def set_busy_ui(self, busy):
         self.btn_check.setEnabled(not busy)
 
+    def _intro(self):
+        intro = label("How healthy is this PC?", "")
+        intro.setStyleSheet("font-size: 13pt; font-weight: 700;")
+        self.recs.addWidget(intro)
+        self.recs.addWidget(label("Run a health check for a score out of 100 and a fix list tailored to this PC. "
+                                  "Or press One-click optimize to clean up and tune everything safely in one go.",
+                                  "muted", wrap=True))
+        row = QHBoxLayout()
+        row.addWidget(button("Run health check", "", self.run_check))
+        row.addWidget(button("One-click optimize", "primary", self.optimize))
+        row.addStretch(1)
+        self.recs.addLayout(row)
+        self.recs.addStretch(1)
+
+    def refresh_action(self):
+        self.run_check()
+
+    def optimize(self, preselect_bloat=False):
+        from .optimize_wizard import OptimizeWizard
+        OptimizeWizard(self.main, preselect_bloat=preselect_bloat).exec()
+        self.tick()
+        self.refresh_drives()
+
     def run_check(self):
-        self.run(_health, progress=self.progress, text="Running health check…", on_done=self._show)
+        self.run(_health, progress=self.progress, text="Running health check…", on_done=self._show,
+                 summary=lambda d: f"Score {score_health(d)[0]} / 100")
 
     def _show(self, data):
         score, recs = score_health(data)
         self.ring.set_score(score)
         _clear(self.recs)
         colors = {"ok": theme.OK, "warn": theme.WARN, "danger": theme.DANGER, "info": theme.INFO}
+        problems = [r for r in recs if r[0] in ("warn", "danger")]
+        head = QHBoxLayout()
+        title = label(f"{len(problems)} thing{'s' if len(problems) != 1 else ''} worth fixing" if problems
+                      else "Looking good")
+        title.setStyleSheet("font-size: 13pt; font-weight: 700;")
+        head.addWidget(title, 1)
+        if problems:
+            head.addWidget(button("Fix it all", "primary", lambda: self.optimize(data.get("bloat", 0) >= 3),
+                                  "Opens One-click optimize with the right steps ticked"))
+        self.recs.addLayout(head)
         for level, text, target, action in recs:
-            row = QHBoxLayout()
-            dot = label("●")
-            dot.setStyleSheet(f"color: {colors[level]}; font-size: 12pt;")
-            row.addWidget(dot)
+            box = QFrame()
+            box.setObjectName("recommend")
+            box.setStyleSheet(f"QFrame#recommend {{ border-left: 3px solid {colors[level]}; }}")
+            row = QHBoxLayout(box)
+            row.setContentsMargins(12, 8, 8, 8)
             row.addWidget(label(text, wrap=True), 1)
             if target == "admin":
                 row.addWidget(button(action, "", self.main.relaunch_admin))
             elif target:
                 row.addWidget(button(action, "", lambda _=False, t=target: self.main.navigate(t)))
-            self.recs.addLayout(row)
+            self.recs.addWidget(box)
         self.recs.addStretch(1)
-        self.main.toast(f"Health score: {score}/100")
+        kind = "success" if score >= 75 else "warning" if score >= 55 else "error"
+        grade = ScoreRing.grade(score)[0].capitalize()
+        self.main.notify(kind, f"Health score: {score} / 100 ({grade})",
+                         f"{len(problems)} thing{'s' if len(problems) != 1 else ''} worth fixing. "
+                         "See the list next to the score." if problems else "Nothing urgent. Nice work.")
 
 
 # =========================================================================== Maintenance
@@ -234,27 +318,55 @@ class MaintenancePage(BasePage):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.NoFrame)
         holder = QWidget()
-        grid = QGridLayout(holder)
-        grid.setSpacing(12)
-        grid.setContentsMargins(0, 0, 6, 0)
+        outer = QVBoxLayout(holder)
+        outer.setContentsMargins(0, 0, 6, 0)
+        outer.setSpacing(8)
         admin = is_admin()
-        for i, a in enumerate(self.actions_list):
-            card = Card(a.group)
+        group_blurbs = {
+            "Safety": "Make a safety net before big changes.",
+            "Repair": "Fix corrupted system files, drive errors and a stuck taskbar or Store.",
+            "Cleanup": "Free space Windows itself is holding on to.",
+            "Security": "Virus scans and protection, using the antivirus built into Windows.",
+            "Updates": "Keep Windows and every app up to date.",
+            "Diagnostics": "Find out what's wrong: drives, battery, memory, Wi-Fi and crashes.",
+            "Network": "Fix connection problems and check your speed.",
+        }
+        grid = None
+        current = None
+        i = 0
+        for a in self.actions_list:
+            if a.group != current:
+                current = a.group
+                head = QHBoxLayout()
+                head.addWidget(label(a.group, "section"))
+                head.addWidget(label(group_blurbs.get(a.group, ""), "muted"), 1)
+                outer.addLayout(head)
+                grid = QGridLayout()
+                grid.setSpacing(12)
+                for col in range(3):
+                    grid.setColumnStretch(col, 1)
+                outer.addLayout(grid)
+                i = 0
+            card = Card()
             heading = label(a.title)
             heading.setStyleSheet("font-weight: 600; font-size: 11pt;")
             card.body.addWidget(heading)
             card.body.addWidget(label(a.description, "muted", wrap=True))
             card.body.addStretch(1)
             b = button("Open" if a.launch else "Run", "primary" if not a.launch else "", lambda _=False, x=a: self.start(x))
-            if a.admin and not admin:
+            usable, why = osinfo.applies(a.target)
+            if not usable:
                 b.setEnabled(False)
-                b.setToolTip("Needs administrator. Use Restart as admin.")
+                b.setText(why)
+            elif a.admin and not admin:
+                b.setEnabled(False)
+                b.setToolTip("Needs administrator. Use Restart as admin in the sidebar.")
                 b.setText("Needs admin")
-            if not IS_WINDOWS:
-                b.setEnabled(False)
             card.body.addWidget(b, 0, Qt.AlignLeft)
             self.buttons.append((b, a))
             grid.addWidget(card, i // 3, i % 3)
+            i += 1
+        outer.addStretch(1)
         scroll.setWidget(holder)
         split.addWidget(scroll)
         bottom = QWidget()
@@ -271,7 +383,7 @@ class MaintenancePage(BasePage):
 
     def set_busy_ui(self, busy):
         for b, a in self.buttons:
-            if not a.launch and b.text() != "Needs admin":
+            if not a.launch and b.text() in ("Run", "Running…"):
                 b.setEnabled(not busy)
 
     def start(self, a):
@@ -282,25 +394,38 @@ class MaintenancePage(BasePage):
             else:
                 open_target(a.launch)
             self.console.add(f"Opened {a.title}.")
+            self.main.notify("info", f"Opened {a.title}")
             return
-        if a.key in ("netreset", "winget_all") and not confirm(self, a.title, f"{a.description}\n\nContinue?", "Run"):
+        if a.confirm and not confirm(self, f"{a.title}?", a.confirm, "Run"):
             return
         self.console.add(f"\n▶ {a.title}")
 
         def work(ctx):
-            return run_stream(a.cmd, lambda line: ctx.progress(line, -1, force=True), ctx.cancelled)
+            def line(text):
+                pct = maintenance.percent_in(text) if a.progress else None
+                ctx.progress(text, -1 if pct is None else pct, force=True)
+            return run_stream(a.cmd, line, ctx.cancelled)
 
         def done(code):
-            self.console.add(f"✔ Finished (exit code {code})" if code == 0 else f"✖ Finished with exit code {code}")
+            self.console.add("✔ Finished" if code == 0 else f"✖ Finished with exit code {code}")
             if a.note and os.path.exists(a.note):
                 open_target(a.note)
-            self.main.toast(f"{a.title}: {'done' if code == 0 else 'finished with warnings'}")
+            if code == 0:
+                self.main.notify("success", f"{a.title}: done", "Details are in the output panel below."
+                                 + (" The report has opened in your browser." if a.note else ""))
+            else:
+                self.main.notify("warning", f"{a.title} finished with warnings",
+                                 f"Exit code {code}. Scroll the output panel for what it reported.")
 
-        def on_line(text, _pct):
-            self.console.add(text)
-            self.progress.update_progress(text[:120], -1)
+        def on_line(text, pct):
+            if text.strip():
+                self.console.add(text)
+                self.progress.update_progress(text.strip()[:140], pct)
+            elif pct >= 0:
+                self.progress.update_progress("", pct)
 
-        self.run(work, progress=self.progress, text=f"{a.title}…", on_done=done, on_progress=on_line)
+        self.run(work, progress=self.progress, text=f"{a.title}…", on_done=done, on_progress=on_line,
+                 summary=lambda code: f"{a.title}: finished" if code == 0 else f"{a.title}: exit code {code}")
 
 
 # =========================================================================== System info
@@ -344,7 +469,7 @@ class SysInfoPage(BasePage):
 
     def _copy(self):
         QGuiApplication.clipboard().setText(self.text)
-        self.main.toast("System report copied to clipboard")
+        self.main.notify("success", "System report copied", "Paste it into an email or support chat with Ctrl+V.")
 
 
 # =========================================================================== Settings & log
@@ -407,6 +532,10 @@ class SettingsPage(BasePage):
         at.addWidget(label("For Windows 10 and 11", "muted"))
         at.addSpacing(6)
         at.addWidget(label(f"Made by {APP_PUBLISHER}", "muted"))
+        at.addSpacing(6)
+        at.addWidget(label(f"This PC: {osinfo.detect().summary()}", "muted", wrap=True))
+        at.addWidget(label("Shortcuts: F5 refresh or scan · Ctrl+F search · Esc cancel · Ctrl+1–9 jump to a page",
+                           "muted", wrap=True))
         at.addStretch(1)
         ab.addLayout(at, 1)
         about.body.addLayout(ab)

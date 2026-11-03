@@ -1,5 +1,5 @@
 # Remedy: PC optimization suite
-**by Noisewater Labs** · Windows 10 & 11 · v1.1.0
+**by Noisewater Labs** · Windows 10 & 11 · v1.2.0
 
 Remedy cleans, speeds up, repairs and sets up Windows PCs from one dark, modern app.
 
@@ -18,23 +18,33 @@ without Python and asks for administrator rights on launch.
 
 ## What's inside
 
+Remedy detects your Windows (10 or 11, release, edition) and whether it's a laptop or desktop, and tailors
+itself: tweaks for another Windows version are greyed out with the reason, battery-hungry tweaks are never
+pre-selected on laptops, and the health check and One-click optimize only offer what fits this PC.
+
 | Section | Feature | What it does |
 |---|---|---|
-| Overview | **Dashboard** | Live CPU/RAM graphs, drive usage, and a one-click **health check** with a 0 to 100 score and a fix list |
-| Clean up | **Junk Cleaner** | User/Windows temp, Windows Update & Delivery Optimization caches, error reports, crash dumps, thumbnail cache, old logs, Recycle Bin, Chrome/Edge/Brave/Vivaldi/Opera/Firefox caches, app caches (Discord, Slack, Teams, VS Code, Spotify, Steam), GPU shader caches, dev package caches |
+| Overview | **Dashboard** | Live CPU/RAM graphs, drive usage, detected Windows version, and a **health check** with a 0 to 100 score and a fix list tailored to this PC (junk, disk space, startup apps, tweaks not yet on, bloatware, battery) |
+| | **One-click optimize** | Restore point → junk clean → recommended tweaks for this Windows → (optional) bloat removal → DNS refresh, with a live checklist, per-step progress and a summary |
+| Clean up | **Junk Cleaner** | User/Windows temp, Windows Update & Delivery Optimization caches, error reports, crash dumps, thumbnail cache, old logs, Recycle Bin, Chrome/Edge/Brave/Vivaldi/Opera/Firefox and Windows web caches, app caches (Discord, Slack, Teams, VS Code, Spotify, Steam), GPU shader caches, dev package caches, recent-files list |
 | | **Large Files** | Finds the biggest files on any drive/folder; filter by type and age ("not touched in a year"); recycle or delete |
 | | **Duplicates** | Content-verified duplicates (size → partial hash → full hash); auto-select keep newest/oldest/shortest path; never deletes every copy |
 | | **Disk Analyzer** | Folder-size tree with share bars, breakdown by file type and top extensions; jump straight to Large Files/Duplicates for any folder |
 | Optimize | **Startup Apps** | Registry Run keys, Startup folders and logon scheduled tasks; enable/disable using the same mechanism as Task Manager |
-| | **Tweaks** | 27 reversible tweaks across Performance, Gaming, Privacy and Explorer: Ultimate Performance plan, Game Mode, Game DVR off, HAGS, mouse acceleration off, telemetry/ads/Bing/Copilot off, classic Win11 context menu, End task in taskbar, and more. Checkboxes show what is applied; tick or untick and press Apply changes. Original values are backed up and restored exactly when undone |
+| | **Tweaks** | 58 reversible tweaks in six groups: **Windows 11** (classic right-click menu, End task, no Start recommendations or account nags, hide Widgets/Chat, taskbar left, never combine, more pins, no snap flyout, Spotlight icon, clock seconds), **Performance** (Ultimate Performance, animations, Fast Startup, Edge background, update sharing, Storage Sense…), **Gaming**, **Privacy & AI** (Copilot, Recall, Click to Do, telemetry, ads, Bing, feedback…), **Taskbar & Explorer** and **Background services**. Presets: Recommended for this PC, Gaming, Privacy, Windows 11 clean-up, Speed. Original values are backed up and restored exactly when undone |
 | | **Services** | All services with plain-English notes on which are safe to trim and which to keep; start/stop/startup type |
 | | **Processes** | Live task list with CPU/memory, end task / process tree, priority; critical system processes are blocked |
 | Apps | **New PC Setup** | 58 curated must-have apps in 10 categories, plus Essentials / Gamer / Developer / Creator bundles; silent batch install via winget with live output |
-| | **Bloatware Remover** | Lists removable Store apps and flags known bloat (Candy Crush, News, Solitaire, Clipchamp, Cortana, TikTok…); remove for current or all users |
+| | **Bloatware Remover** | Lists removable Store apps and flags 70+ known bloat apps, including Windows 11's (Copilot, Clipchamp, Dev Home, Journal, Mail & Calendar, Candy Crush, TikTok…); remove for current or all users |
 | | **Installed Programs** | Everything installed, sortable by size/date; launch uninstallers |
-| System | **Maintenance** | Restore point, SFC, DISM repair, component cleanup, TRIM/defrag, drive SMART health, battery report, memory test, reliability history, DNS flush, network reset, ping test, check/update all apps (winget), Restart Explorer, rebuild icon cache |
+| System | **Maintenance** | 27 one-click actions in sections: restore point; SFC, DISM, drive error scan, Store reset, Explorer and icon-cache repair; component cleanup, TRIM/defrag, OneDrive removal; Defender quick scan and definition updates; app updates via winget; drive SMART health, battery and Wi-Fi reports, memory test, reliability history; DNS flush, network reset, clock sync, ping test. SFC/DISM/chkdsk/defrag show real percentages |
 | | **System Info** | CPU, GPU, RAM modules, motherboard, BIOS, disks + health, network, battery; copy it as a report |
-| | **Settings & Log** | Safety options, excluded folders, privileges, About, and a live activity log |
+| | **Settings & Log** | Safety options, excluded folders, privileges, About (with detected system), and a live activity log |
+
+**Feedback everywhere:** every task shows a progress strip with percent, elapsed time and time left, a sidebar
+"Running" panel keeps progress visible from any page, and results arrive as colour-coded notifications
+(success, info, warning, error) with a details or follow-up button when useful.
+Shortcuts: F5 refresh/scan, Ctrl+F search, Esc cancel, Ctrl+1–9 jump between pages.
 
 ## Safety by design
 

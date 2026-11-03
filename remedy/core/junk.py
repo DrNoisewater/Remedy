@@ -110,6 +110,11 @@ def build_categories() -> list:
             add("browser_" + label.lower().replace(" ", "_"), f"{label} cache",
                 "Cached web content only. Passwords, cookies, history and tabs are untouched.",
                 _chromium_targets(root), group="Browsers", warning="Close the browser first for best results")
+    inet = os.path.join(local, r"Microsoft\Windows\INetCache")
+    if os.path.isdir(inet):
+        add("inetcache", "Windows web cache", "Web content cached by Windows, Office and older apps (the old "
+            "'Temporary Internet Files'). Rebuilt automatically.", [JunkTarget(inet, min_age_hours=24)],
+            group="Browsers")
     opera = [JunkTarget(d) for d in _dirs(os.path.join(glob.escape(local), "Opera Software", "*", "Cache"))]
     if opera:
         add("browser_opera", "Opera cache", "Cached web content only.", opera, group="Browsers",
@@ -142,6 +147,10 @@ def build_categories() -> list:
                                  os.path.join(local, r"Yarn\Cache"), os.path.join(local, r"NuGet\v3-cache"),
                                  os.path.join(str(Path.home()), r".gradle\caches")]],
         group="Developer", default=False)
+    add("recent_items", "Recent files list", "Clears the shortcuts behind Explorer's 'Recent files' list. "
+        "Your actual files are not touched; pinned items stay.",
+        [JunkTarget(os.path.join(roaming, r"Microsoft\Windows\Recent"), "*.lnk", recursive=False)],
+        group="Privacy", default=False)
     return cats
 
 

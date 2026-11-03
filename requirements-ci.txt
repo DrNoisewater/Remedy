@@ -1,0 +1,7 @@
+# Exact versions used by the cloud builds (CI and Release), so every build uses the same tools.
+# requirements.txt stays as-is for people running Remedy from source.
+PySide6-Essentials==6.12.0
+psutil==7.2.2
+Send2Trash==2.1.0
+pyinstaller==6.22.3
+pytest==9.2.0

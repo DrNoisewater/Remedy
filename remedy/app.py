@@ -4,15 +4,16 @@ from __future__ import annotations
 import sys
 import time
 
-from PySide6.QtCore import QByteArray, QEasingCurve, QPropertyAnimation, Qt, QTimer
-from PySide6.QtGui import QFont, QGuiApplication
-from PySide6.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect, QHBoxLayout, QLabel, QListWidget,
-                               QListWidgetItem, QMainWindow, QStackedWidget, QVBoxLayout, QWidget)
+from PySide6.QtCore import QByteArray, Qt, QTimer
+from PySide6.QtGui import QFont, QGuiApplication, QKeySequence, QShortcut
+from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel, QLineEdit, QListWidget, QListWidgetItem,
+                               QMainWindow, QStackedWidget, QVBoxLayout, QWidget)
 
 from . import theme
 from .core.utils import (APP_NAME, APP_PUBLISHER, APP_VERSION, IS_WINDOWS, is_admin, log, relaunch_as_admin,
                          settings, setup_logging)
 from .ui import widgets as W
+from .ui.notify import ToastManager
 
 # (key, label, MDL2 glyph, section)
 NAV = [
@@ -47,51 +48,6 @@ def _page_classes() -> dict:
     }
 
 
-class Toast(QFrame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.setObjectName("toast")
-        lay = QHBoxLayout(self)
-        lay.setContentsMargins(16, 11, 16, 11)
-        self.text = QLabel()
-        self.text.setWordWrap(True)
-        lay.addWidget(self.text)
-        self.effect = QGraphicsOpacityEffect(self)
-        self.setGraphicsEffect(self.effect)
-        self.anim = QPropertyAnimation(self.effect, b"opacity", self)
-        self.anim.setEasingCurve(QEasingCurve.OutCubic)
-        self.anim.finished.connect(self._faded)
-        self.timer = QTimer(self)
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self._fade)
-        self.hide()
-
-    def show_message(self, text: str, ms: int = 4500):
-        self.text.setText(text)
-        self.setFixedWidth(min(520, max(280, self.parent().width() // 2)))
-        self.adjustSize()
-        self.reposition()
-        self.anim.stop()
-        self.effect.setOpacity(1.0)
-        self.show()
-        self.raise_()
-        self.timer.start(ms)
-
-    def reposition(self):
-        p = self.parent()
-        self.move(p.width() - self.width() - 24, p.height() - self.height() - 24)
-
-    def _fade(self):
-        self.anim.setDuration(400)
-        self.anim.setStartValue(1.0)
-        self.anim.setEndValue(0.0)
-        self.anim.start()
-
-    def _faded(self):
-        if self.effect.opacity() < 0.05:
-            self.hide()
-
-
 class MainWindow(QMainWindow):
     def __init__(self, splash=None):
         super().__init__()
@@ -118,9 +74,11 @@ class MainWindow(QMainWindow):
             if splash:
                 splash.status(f"Loading {text}…", 0.15 + 0.8 * i / len(NAV))
             page = classes[key](self)
+            page.key = key
             self.pages[key] = page
             self.stack.addWidget(page)
-        self.toast_widget = Toast(self)
+        self.toasts = ToastManager(self)
+        self._shortcuts()
         self.navigate("dashboard")
 
     # ---------------------------------------------------------------- window size & position
@@ -191,6 +149,12 @@ class MainWindow(QMainWindow):
         self.nav.currentItemChanged.connect(self._nav_changed)
         lay.addWidget(self.nav, 1)
 
+        self.activity = W.ActivityPanel(self.navigate)
+        act_wrap = QHBoxLayout()
+        act_wrap.setContentsMargins(12, 0, 12, 8)
+        act_wrap.addWidget(self.activity)
+        lay.addLayout(act_wrap)
+
         admin = is_admin()
         status = W.label("● Administrator" if admin else "● Limited mode")
         status.setStyleSheet(f"color: {theme.OK if admin else theme.WARN}; font-weight: 600; padding-left: 24px;")
@@ -201,7 +165,8 @@ class MainWindow(QMainWindow):
             wrap.setContentsMargins(20, 4, 20, 0)
             wrap.addWidget(b)
             lay.addLayout(wrap)
-        ver = W.label(f"v{APP_VERSION}", "muted")
+        from .core.osinfo import detect
+        ver = W.label(f"v{APP_VERSION}  ·  {detect().short()}", "muted")
         ver.setStyleSheet("padding-left: 24px; font-size: 8pt;")
         lay.addWidget(ver)
         return side
@@ -225,8 +190,40 @@ class MainWindow(QMainWindow):
         if folder and hasattr(page, "scan_folder"):
             QTimer.singleShot(80, lambda: page.scan_folder(folder))
 
-    def toast(self, text: str):
-        self.toast_widget.show_message(text)
+    def notify(self, kind: str, title: str, body: str = "", action=None, ms: int = 0):
+        """Show a toast. kind: success | info | warning | error. action: (button text, callback)."""
+        return self.toasts.show(kind, title, body, action, ms)
+
+    def toast(self, text: str, kind: str = "info"):
+        self.notify(kind, text)
+
+    def current_page(self):
+        return self.stack.currentWidget()
+
+    def _shortcuts(self):
+        """F5 refresh/scan, Ctrl+F search, Esc cancel, Ctrl+1…9 jump between the main pages."""
+        def refresh():
+            page = self.current_page()
+            fn = getattr(page, "refresh_action", None)
+            if fn:
+                fn()
+
+        def search():
+            box = self.current_page().findChild(QLineEdit)
+            if box is not None and box.isVisible():
+                box.setFocus()
+                box.selectAll()
+
+        def cancel():
+            page = self.current_page()
+            if getattr(page, "worker", None) is not None:
+                page.cancel_task()
+
+        QShortcut(QKeySequence("F5"), self, refresh)
+        QShortcut(QKeySequence.Find, self, search)
+        QShortcut(QKeySequence("Esc"), self, cancel)
+        for i, (key, *_rest) in enumerate(NAV[:9]):
+            QShortcut(QKeySequence(f"Ctrl+{i + 1}"), self, lambda k=key: self.navigate(k))
 
     def relaunch_admin(self):
         single = getattr(self, "single", None)
@@ -238,7 +235,7 @@ class MainWindow(QMainWindow):
         else:
             if single is not None:
                 single.listen()
-            self.toast("Elevation was cancelled.")
+            self.notify("warning", "Still in limited mode", "The administrator prompt was cancelled.")
 
     def bring_to_front(self):
         """Called when Remedy is launched again while already running."""
@@ -249,12 +246,12 @@ class MainWindow(QMainWindow):
         self.show()
         self.raise_()
         self.activateWindow()
-        self.toast("Remedy is already running.")
+        self.notify("info", "Remedy is already open", "Here it is.")
 
     def resizeEvent(self, e):
         super().resizeEvent(e)
-        if hasattr(self, "toast_widget") and self.toast_widget.isVisible():
-            self.toast_widget.reposition()
+        if hasattr(self, "toasts"):
+            self.toasts.reposition()
 
     def closeEvent(self, e):
         self._save_geometry()

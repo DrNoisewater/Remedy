@@ -10,8 +10,12 @@ from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLineEdit, QSplitter, QTre
 from .. import theme
 from ..core import appstore, programs
 from ..core.utils import IS_WINDOWS, human_size, is_admin, log, open_location, run_stream
-from .widgets import (OBJ_ROLE, UR, BasePage, Console, ProgressRow, SortItem, button, confirm, error,
+from .widgets import (OBJ_ROLE, UR, BasePage, Console, ProgressRow, SortItem, attach_empty, button, confirm, error,
                       error_report, label, make_tree, size_widths)
+
+
+def _s(n: int, word: str) -> str:
+    return f"{n:,} {word}{'' if n == 1 else 's'}"
 
 
 # =========================================================================== New PC setup
@@ -147,12 +151,14 @@ class SetupPage(BasePage):
     def install(self):
         rows = [it for it in self._items() if it.checkState(0) == Qt.Checked]
         if not rows:
-            self.main.toast("Check some apps or pick a Quick pick bundle first.")
+            self.main.notify("info", "Pick some apps first", "Tick apps in the list, or use a Quick pick bundle.")
             return
         if not IS_WINDOWS:
             return
-        if not confirm(self, "Install apps", f"Install {len(rows)} app(s) silently with winget?\n\n"
-                                             "Installers run one at a time. Some may show a UAC prompt.", "Install"):
+        if not confirm(self, f"Install {_s(len(rows), 'app')}?",
+                       "They download from official sources and install silently, one at a time. "
+                       "Some may show a Windows permission prompt.", "Install",
+                       bullets=[r.text(0) for r in rows]):
             return
         apps = [r.data(0, OBJ_ROLE) for r in rows]
         by_id = {r.data(0, OBJ_ROLE).winget_id: r for r in rows}
@@ -165,7 +171,8 @@ class SetupPage(BasePage):
             for i, app in enumerate(apps):
                 if ctx.cancelled():
                     break
-                ctx.progress(f"@{app.winget_id}|Installing…", int(i * 100 / len(apps)), force=True)
+                ctx.progress(f"@{app.winget_id}|Installing ({i + 1} of {len(apps)})…", int(i * 100 / len(apps)),
+                             force=True)
                 ctx.progress(f"── {app.name} ({app.winget_id})", -1, force=True)
                 code = run_stream(appstore.install_args(app.winget_id),
                                   lambda line: ctx.progress(line, -1, force=True), ctx.cancelled)
@@ -184,7 +191,7 @@ class SetupPage(BasePage):
                     r.setText(1, status)
                     r.setForeground(1, QColor(theme.OK if status == "Installed" else
                                               theme.DANGER if status.startswith("Failed") else theme.ACCENT))
-                self.progress.update_progress(f"{status.split(':')[0]} {r.text(0) if r else wid}", pct)
+                self.progress.update_progress(f"{status.split(':')[0].rstrip('…')}: {r.text(0) if r else wid}", pct)
             else:
                 # skip winget's spinner / progress-bar noise
                 if text.strip() in ("-", "\\", "|", "/") or set(text.strip()) <= set("█▒ ") or "MB /" in text:
@@ -196,11 +203,17 @@ class SetupPage(BasePage):
             fails = [(n, d) for n, s, d in results if not s]
             for r in rows:
                 r.setCheckState(0, Qt.Unchecked)
-            self.main.toast(f"Installed {ok} of {len(results)} app(s)")
+            if ok:
+                self.main.notify("success", f"Installed {ok} of {_s(len(results), 'app')}",
+                                 "Find them in the Start menu.")
             if fails:
-                error(self, "Some installs failed", "You can retry them or install manually.", error_report(fails))
+                self.main.notify("warning", f"{_s(len(fails), 'install')} didn't finish",
+                                 "Tick them again to retry, or install them from the publisher's site.",
+                                 action=("Show details", lambda: error(self, "Some installs failed", "",
+                                                                       error_report(fails))))
 
-        self.run(work, progress=self.progress, text="Installing…", on_done=done, on_progress=prog)
+        self.run(work, progress=self.progress, text="Installing…", on_done=done, on_progress=prog,
+                 summary=lambda res: f"Installed {sum(1 for x in res if x[1])} of {len(res)}")
 
 
 # =========================================================================== Bloatware
@@ -228,11 +241,17 @@ class BloatwarePage(BasePage):
         self.root.addLayout(top)
         self.progress = ProgressRow()
         self.root.addWidget(self.progress)
-        self.tree = make_tree(["App", "What it is", "Package", "Version"], multi=False, stretch_col=2)
-        size_widths(self.tree, {0: 260, 1: 240, 3: 110})
+        self.tree = make_tree(["App", "Verdict", "Package", "Version"], multi=False, stretch_col=2)
+        size_widths(self.tree, {0: 280, 1: 220, 3: 110})
         self.root.addWidget(self.tree, 1)
+        self.empty = attach_empty(self.tree, "Looking for removable apps…")
+        bottom = QHBoxLayout()
         self.summary = label("", "muted")
-        self.root.addWidget(self.summary)
+        bottom.addWidget(self.summary, 1)
+        bottom.addWidget(label("Stop Windows adding them back:", "muted"))
+        bottom.addWidget(button("Turn off auto-installed apps", "", lambda: self.main.navigate("tweaks"),
+                                "Opens Tweaks: 'Disable tips, suggestions & auto-installed apps'"))
+        self.root.addLayout(bottom)
 
     def on_first_show(self):
         if IS_WINDOWS:
@@ -242,26 +261,32 @@ class BloatwarePage(BasePage):
 
     def refresh(self):
         self.run(lambda ctx: programs.list_appx(), progress=self.progress, text="Listing Store apps…",
-                 cancellable=False, on_done=self._populate)
+                 cancellable=False, on_done=self._populate,
+                 summary=lambda apps: f"{sum(1 for a in apps if a['recommended'])} apps flagged as bloat")
+
+    def refresh_action(self):
+        self.refresh()
 
     def _populate(self, apps):
         self.tree.setSortingEnabled(False)
         self.tree.clear()
         for a in apps:
-            r = SortItem([a["name"].split(".")[-1] if not a["label"] else a["label"],
-                          ("Recommended to remove" if a["recommended"] else "Optional") if a["known"] else "",
+            verdict = ("Safe to remove" if a["recommended"] else "Optional: keep if you use it") if a["known"] \
+                else "Not on our list"
+            r = SortItem([a["name"].split(".")[-1] if not a["label"] else a["label"], verdict,
                           a["name"], a["version"]])
             r.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable)
             r.setCheckState(0, Qt.Unchecked)
             r.setData(0, OBJ_ROLE, a)
             r.setData(0, UR, (0 if a["recommended"] else 1 if a["known"] else 2, a["name"].lower()))
-            if a["recommended"]:
-                r.setForeground(1, QColor(theme.ACCENT))
+            r.setForeground(1, QColor(theme.ACCENT if a["recommended"] else theme.WARN if a["known"] else theme.MUTED))
             self.tree.addTopLevelItem(r)
         self.tree.setSortingEnabled(True)
         self.tree.sortItems(0, Qt.AscendingOrder)
         rec = sum(1 for a in apps if a["recommended"])
         self.summary.setText(f"{len(apps)} removable Store apps · {rec} flagged as bloat")
+        self.empty.setText("No known bloat found. This PC is already clean." if not apps or self.only_known.isChecked()
+                           else "No apps match the filter.")
         self._filter()
 
     def _filter(self, *_):
@@ -274,9 +299,15 @@ class BloatwarePage(BasePage):
             r.setHidden(not ok)
 
     def _recommended(self):
+        n = 0
         for i in range(self.tree.topLevelItemCount()):
             r = self.tree.topLevelItem(i)
-            r.setCheckState(0, Qt.Checked if r.data(0, OBJ_ROLE)["recommended"] else Qt.Unchecked)
+            rec = r.data(0, OBJ_ROLE)["recommended"]
+            r.setCheckState(0, Qt.Checked if rec else Qt.Unchecked)
+            n += rec
+        self.main.notify("info" if n else "success", f"Ticked {_s(n, 'app')} flagged as bloat" if n else
+                         "No bloat to remove", "Review the list, then press Remove checked." if n else
+                         "Nothing on this PC is on our bloat list.")
 
     def set_busy_ui(self, busy):
         self.btn_remove.setEnabled(not busy)
@@ -285,11 +316,12 @@ class BloatwarePage(BasePage):
         rows = [self.tree.topLevelItem(i) for i in range(self.tree.topLevelItemCount())
                 if self.tree.topLevelItem(i).checkState(0) == Qt.Checked]
         if not rows:
-            self.main.toast("Check apps to remove, or use Select recommended.")
+            self.main.notify("info", "Nothing ticked", "Tick apps to remove, or use Select recommended.")
             return
-        names = ", ".join(r.text(0) for r in rows[:8]) + ("…" if len(rows) > 8 else "")
-        if not confirm(self, "Remove apps", f"Remove {len(rows)} app(s)?\n\n{names}\n\n"
-                                            "You can reinstall any of them from the Microsoft Store.", "Remove"):
+        who = "every user on this PC" if self.all_users.isChecked() else "your account"
+        if not confirm(self, f"Remove {_s(len(rows), 'app')}?",
+                       f"They'll be removed for {who}. You can reinstall any of them from the Microsoft Store.",
+                       "Remove", danger=True, bullets=[r.text(0) for r in rows]):
             return
         apps = [r.data(0, OBJ_ROLE) for r in rows]
         all_users = self.all_users.isChecked()
@@ -297,7 +329,8 @@ class BloatwarePage(BasePage):
         def work(ctx):
             errs = []
             for i, a in enumerate(apps):
-                ctx.progress(f"Removing {a['label'] or a['name']}…", int(i * 100 / len(apps)), force=True)
+                ctx.progress(f"Removing {a['label'] or a['name']} ({i + 1} of {len(apps)})…",
+                             int(i * 100 / len(apps)), force=True)
                 try:
                     programs.remove_appx(a["full_name"], all_users)
                 except Exception as exc:  # noqa: BLE001
@@ -306,12 +339,18 @@ class BloatwarePage(BasePage):
 
         def done(res):
             ok, errs = res
-            self.main.toast(f"Removed {ok} app(s)")
+            if ok:
+                self.main.notify("success", f"Removed {_s(ok, 'app')}",
+                                 "Reinstall any of them from the Microsoft Store if you miss it.")
             if errs:
-                error(self, "Some apps could not be removed", "", error_report(errs))
+                self.main.notify("warning", f"{_s(len(errs), 'app')} couldn't be removed",
+                                 "Some system apps refuse removal, or need administrator rights.",
+                                 action=("Show details", lambda: error(self, "Some apps could not be removed", "",
+                                                                       error_report(errs))))
             self.refresh()
 
-        self.run(work, progress=self.progress, text="Removing…", cancellable=False, on_done=done)
+        self.run(work, progress=self.progress, text="Removing apps…", cancellable=False, on_done=done,
+                 summary=lambda res: f"Removed {_s(res[0], 'app')}")
 
 
 # =========================================================================== Programs
@@ -347,7 +386,10 @@ class ProgramsPage(BasePage):
 
     def refresh(self):
         self.run(lambda ctx: programs.list_programs(), progress=self.progress, text="Reading installed programs…",
-                 cancellable=False, on_done=self._populate)
+                 cancellable=False, on_done=self._populate, summary=lambda p: f"{len(p)} programs found")
+
+    def refresh_action(self):
+        self.refresh()
 
     def _populate(self, progs):
         self.tree.setSortingEnabled(False)
@@ -377,16 +419,20 @@ class ProgramsPage(BasePage):
         if p and p.location and os.path.isdir(p.location):
             open_location(p.location)
         elif p:
-            self.main.toast("This program doesn't report an install folder.")
+            self.main.notify("info", "No install folder listed", f"{p.name} doesn't say where it's installed.")
 
     def uninstall(self):
         p = self._current()
         if not p:
+            self.main.notify("info", "Select a program first")
             return
-        if confirm(self, "Uninstall", f"Launch the uninstaller for {p.name}?", "Uninstall"):
+        if confirm(self, f"Uninstall {p.name}?", "Its own uninstaller will open. Follow its steps, "
+                                                 "then come back and press Refresh (F5).", "Open uninstaller"):
             try:
                 programs.uninstall_program(p)
-                self.main.toast(f"Uninstaller launched for {p.name}. Press Refresh when it finishes.")
+                self.main.notify("info", f"Uninstaller opened for {p.name}",
+                                 "When it finishes, press Refresh to update the list.",
+                                 action=("Refresh now", self.refresh))
             except Exception as exc:  # noqa: BLE001
                 log.warning("Uninstall failed: %s", exc)
                 error(self, "Could not start uninstaller", str(exc))

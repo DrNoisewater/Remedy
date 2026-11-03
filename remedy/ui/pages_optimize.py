@@ -9,10 +9,10 @@ from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QCheckBox, QComboBox, QHBoxLayout, QLineEdit, QMenu, QTreeWidgetItem
 
 from .. import theme
-from ..core import maintenance, services, startup, tweaks
+from ..core import maintenance, osinfo, services, startup, tweaks
 from ..core.utils import IS_WINDOWS, human_size, is_admin, log, open_location, settings
-from .widgets import (OBJ_ROLE, UR, BasePage, Card, ProgressRow, SortItem, button, confirm, error,
-                      error_report, info, label, make_tree, size_widths)
+from .widgets import (OBJ_ROLE, UR, BasePage, Card, ProgressRow, SortItem, attach_empty, button, confirm, error,
+                      error_report, label, make_tree, pill, size_widths)
 
 
 def _windows_only(page) -> bool:
@@ -36,6 +36,7 @@ class StartupPage(BasePage):
         size_widths(self.tree, {0: 230, 1: 95, 2: 140, 3: 120})
         self.tree.customContextMenuRequested.connect(self._menu)
         self.root.addWidget(self.tree, 1)
+        attach_empty(self.tree, "Reading startup entries…")
         bottom = QHBoxLayout()
         self.summary = label("", "muted")
         bottom.addWidget(self.summary, 1)
@@ -51,7 +52,11 @@ class StartupPage(BasePage):
 
     def refresh(self):
         self.run(lambda ctx: startup.list_startup_items(True), progress=self.progress,
-                 text="Reading startup entries…", cancellable=False, on_done=self._populate)
+                 text="Reading startup entries…", cancellable=False, on_done=self._populate,
+                 summary=lambda items: f"{len(items)} startup entries found")
+
+    def refresh_action(self):
+        self.refresh()
 
     def _populate(self, items):
         self.tree.setSortingEnabled(False)
@@ -74,7 +79,8 @@ class StartupPage(BasePage):
     def _summary(self):
         items = [self.tree.topLevelItem(i).data(0, OBJ_ROLE) for i in range(self.tree.topLevelItemCount())]
         on = sum(1 for i in items if i.enabled)
-        self.summary.setText(f"{on} of {len(items)} startup items enabled")
+        tip = " · Aim for 5 or fewer for a quick boot." if on > 5 else " · Nice and lean."
+        self.summary.setText(f"{on} of {len(items)} startup items enabled{tip if items else ''}")
 
     def _sel(self):
         return [r for r in self.tree.selectedItems()]
@@ -82,7 +88,7 @@ class StartupPage(BasePage):
     def _set(self, enabled):
         rows = self._sel()
         if not rows:
-            self.main.toast("Select one or more items first.")
+            self.main.notify("info", "Select an app first", "Click one (Ctrl or Shift to pick several).")
             return
         errors = []
         for r in rows:
@@ -94,11 +100,17 @@ class StartupPage(BasePage):
                 hint = " (needs administrator)" if item.needs_admin and not is_admin() else ""
                 errors.append((item.name, f"{exc}{hint}"))
         self._summary()
+        changed = len(rows) - len(errors)
+        if changed:
+            verb = "will start with Windows again" if enabled else "won't start with Windows any more"
+            self.main.notify("success", f"{changed} app{'s' if changed != 1 else ''} {verb}",
+                             "Takes effect next time you sign in." + ("" if enabled else " Re-enable any time."))
         if errors:
-            error(self, "Some changes failed", "Run Remedy as administrator to change system-wide entries.",
-                  error_report(errors))
-        else:
-            self.main.toast(f"{'Enabled' if enabled else 'Disabled'} {len(rows)} startup item(s)")
+            self.main.notify("warning", f"{len(errors)} couldn't be changed",
+                             "System-wide entries need administrator rights.",
+                             action=("Show details", lambda: error(self, "Some changes failed",
+                                                                   "These were left as they were:",
+                                                                   error_report(errors))))
 
     def _open(self):
         rows = self._sel()
@@ -107,15 +119,16 @@ class StartupPage(BasePage):
             if os.path.exists(path):
                 open_location(path)
             else:
-                self.main.toast("The target file could not be found.")
+                self.main.notify("warning", "File not found", "The program this entry points to no longer exists. "
+                                 "It's safe to remove the entry.")
 
     def _remove(self):
         rows = self._sel()
         if not rows:
             return
-        if not confirm(self, "Remove startup entries",
-                       f"Remove {len(rows)} entry(s) completely? Disable is usually better because it's reversible. "
-                       "Removing only deletes the startup entry, not the program.", "Remove"):
+        if not confirm(self, f"Remove {len(rows)} startup entr{'y' if len(rows) == 1 else 'ies'}?",
+                       "This deletes the startup entry only, not the program. Disable is usually better "
+                       "because it can be undone.", "Remove", danger=True, bullets=[r.text(0) for r in rows]):
             return
         errors = []
         for r in rows:
@@ -124,7 +137,10 @@ class StartupPage(BasePage):
             except Exception as exc:  # noqa: BLE001
                 errors.append((r.text(0), str(exc)))
         if errors:
-            error(self, "Some entries could not be removed", "", error_report(errors))
+            error(self, "Some entries could not be removed", "They may need administrator rights.",
+                  error_report(errors))
+        else:
+            self.main.notify("success", f"Removed {len(rows)} startup entr{'y' if len(rows) == 1 else 'ies'}")
         self.refresh()
 
     def _menu(self, pos):
@@ -175,16 +191,35 @@ def _apply(ctx, to_apply, to_revert, restore_point):
 
 class TweaksPage(BasePage):
     title = "Tweaks"
-    subtitle = ("Checked means on. Tick or untick tweaks, then press Apply changes. "
-                "Every change remembers the original setting so it can be undone.")
+    subtitle = ("Ticked means on. Tick or untick, then press Apply changes. "
+                "Original settings are saved, so you can untick any tweak to undo it.")
 
     def __init__(self, main):
         super().__init__(main)
         self.tweaks = tweaks.build_tweaks()
+        self.os = osinfo.detect()
         self.state: dict = {}          # tweak id -> True (applied) / False / None (unknown)
-        self.add_action("Select recommended", "", self._recommended)
+        presets = button("Presets ▾", "", None, "Tick a ready-made set of tweaks suited to this PC")
+        pm = QMenu(presets)
+        pm.addAction("Recommended for this PC", self._recommended)
+        pm.addSeparator()
+        for name in tweaks.PRESETS:
+            if name == "Windows 11 clean-up" and not self.os.is_win11:
+                continue
+            pm.addAction(name, lambda n=name: self._preset(n))
+        presets.setMenu(pm)
+        self.actions.addWidget(presets)
         self.btn_reset = self.add_action("Discard changes", "", self._sync_checks)
         self.btn_apply = self.add_action("Apply changes", "primary", self._go)
+        banner = QHBoxLayout()
+        banner.addWidget(pill(f"Tailored for {self.os.short()}", theme.ACCENT))
+        if self.os.laptop:
+            banner.addWidget(pill("Laptop: battery-hungry tweaks aren't pre-selected", theme.WARN))
+        hidden = sum(1 for t in self.tweaks if not t.availability(self.os)[0])
+        if hidden and self.os.is_windows:
+            banner.addWidget(label(f"{hidden} tweaks for other Windows versions are greyed out.", "muted"))
+        banner.addStretch(1)
+        self.root.addLayout(banner)
         self.progress = ProgressRow()
         self.root.addWidget(self.progress)
         self.tree = make_tree(["Tweak", "Risk", "Status", "Takes effect"], multi=False, sortable=False)
@@ -226,10 +261,16 @@ class TweaksPage(BasePage):
             it.setData(0, OBJ_ROLE, t)
             it.setForeground(1, QColor(RISK_COLORS.get(t.risk, theme.MUTED)))
             flags = Qt.ItemIsSelectable | Qt.ItemIsUserCheckable
-            if IS_WINDOWS and (admin or not t.admin):
+            usable, why = t.availability(self.os)
+            if usable and (admin or not t.admin):
                 flags |= Qt.ItemIsEnabled
-            elif IS_WINDOWS:
+            elif usable:
                 it.setText(3, "Needs administrator")
+            else:
+                it.setText(2, why)
+                it.setText(3, "")
+            if self.os.laptop and t.laptop_note:
+                it.setToolTip(0, "On laptops: " + t.laptop_note)
             it.setFlags(flags)
             it.setCheckState(0, Qt.Unchecked)
             g.addChild(it)
@@ -290,6 +331,11 @@ class TweaksPage(BasePage):
             t = it.data(0, OBJ_ROLE)
             st = self.state.get(t.id)
             checked = it.checkState(0) == Qt.Checked
+            usable, why = t.availability(self.os)
+            if not usable:
+                it.setText(2, why)
+                it.setForeground(2, QColor(theme.MUTED))
+                continue
             if checked and not st:
                 text, color = "Will be applied", theme.ACCENT
             elif st and not checked:
@@ -305,7 +351,8 @@ class TweaksPage(BasePage):
         self.tree.blockSignals(False)
         to_apply, to_revert = self._pending()
         on = sum(1 for v in self.state.values() if v)
-        parts = [f"{on} of {len(self.tweaks)} tweaks applied"]
+        usable = sum(1 for t in self.tweaks if t.availability(self.os)[0])
+        parts = [f"{on} of {usable} tweaks on"]
         if to_apply or to_revert:
             parts.append(f"{len(to_apply)} to apply, {len(to_revert)} to undo")
         self.summary.setText(" · ".join(parts))
@@ -315,17 +362,46 @@ class TweaksPage(BasePage):
     def _describe(self, item, _prev):
         t = item.data(0, OBJ_ROLE) if item else None
         if t:
-            self.desc_title.setText(t.name)
-            self.desc.setText(t.description + (" Requires administrator." if t.admin else ""))
+            extra = []
+            if t.admin:
+                extra.append("Needs administrator.")
+            if t.restart:
+                extra.append(f"Takes effect after: {t.restart.lower()}.")
+            usable, why = t.availability(self.os)
+            if not usable:
+                extra.append(f"Not available here ({why}).")
+            if t.laptop_note:
+                extra.append(f"On laptops: {t.laptop_note}")
+            self.desc_title.setText(f"{t.name}  ·  {t.risk}")
+            self.desc.setText(" ".join([t.description] + extra))
 
-    def _recommended(self):
-        """Tick every recommended tweak (already-applied ones stay ticked)."""
+    def _tick(self, ids, label_text):
+        ids = set(ids)
+        added = 0
         self.tree.blockSignals(True)
         for it in self._children():
-            if it.flags() & Qt.ItemIsEnabled and it.data(0, OBJ_ROLE).recommended:
+            t = it.data(0, OBJ_ROLE)
+            if it.flags() & Qt.ItemIsEnabled and t.id in ids and it.checkState(0) != Qt.Checked:
                 it.setCheckState(0, Qt.Checked)
+                added += 1
         self.tree.blockSignals(False)
         self._refresh_status_column()
+        if added:
+            self.main.notify("info", f"{label_text}: ticked {added} tweak{'s' if added != 1 else ''}",
+                             "Review them, then press Apply changes. Nothing changes until you do.")
+        else:
+            self.main.notify("success", f"{label_text}: already set", "Everything in this set is already ticked "
+                                                                      "or not available on this PC.")
+
+    def _recommended(self):
+        """Tick every tweak recommended for this PC (already-applied ones stay ticked)."""
+        self._tick([t.id for t in self.tweaks if t.suggested(self.os)], "Recommended")
+
+    def _preset(self, name):
+        self._tick(tweaks.preset_ids(name, self.tweaks, self.os), name)
+
+    def refresh_action(self):
+        self.refresh()
 
     def set_busy_ui(self, busy):
         if busy:
@@ -335,23 +411,23 @@ class TweaksPage(BasePage):
     def _go(self):
         to_apply, to_revert = self._pending()
         if not to_apply and not to_revert:
-            self.main.toast("Nothing to change. Tick or untick tweaks first.")
+            self.main.notify("info", "Nothing to change yet", "Tick tweaks to turn them on, or untick to undo them.")
             return
         lines = []
         if to_apply:
-            lines.append(f"Apply {len(to_apply)} tweak(s)")
+            lines.append(f"turn on {len(to_apply)}")
         if to_revert:
-            lines.append(f"Undo {len(to_revert)} tweak(s)")
-        text = " and ".join(lines) + "?"
-        risky = [t.name for t in to_apply if t.risk != "Safe"]
-        if risky:
-            text += "\n\nModerate/Advanced: " + ", ".join(risky)
-        if not confirm(self, "Tweaks", text, "Apply changes"):
+            lines.append(f"undo {len(to_revert)}")
+        bullets = [f"On: {t.name}" + ("" if t.risk == "Safe" else f" ({t.risk})") for t in to_apply]
+        bullets += [f"Undo: {t.name}" for t in to_revert]
+        rp = bool(settings.get("restore_point_before_tweaks")) and is_admin() and bool(to_apply)
+        text = ("A restore point is created first, so you can roll everything back." if rp else
+                "Each original setting is saved, so you can undo any tweak later.")
+        if not confirm(self, f"Apply changes: {' and '.join(lines)}?", text, "Apply changes", bullets=bullets):
             return
         self._restarts = {t.restart for t in to_apply + to_revert} - {""}
-        rp = bool(settings.get("restore_point_before_tweaks")) and is_admin() and bool(to_apply)
-        self.run(_apply, to_apply, to_revert, rp, progress=self.progress, text="Working…", cancellable=False,
-                 on_done=self._done)
+        self.run(_apply, to_apply, to_revert, rp, progress=self.progress, text="Applying tweaks…", cancellable=False,
+                 on_done=self._done, summary=lambda r: f"{sum(1 for x in r if x[1])} change(s) applied")
 
     def _done(self, results):
         fails = [(n, m) for n, ok, m in results if not ok]
@@ -359,16 +435,21 @@ class TweaksPage(BasePage):
         restarts = getattr(self, "_restarts", set())
         self.refresh()
         if fails:
-            error(self, "Some tweaks failed", f"{len(done)} succeeded, {len(fails)} failed.", error_report(fails))
+            self.main.notify("warning", f"{len(done)} applied, {len(fails)} didn't work",
+                             "Usually that means administrator rights are needed.",
+                             action=("Show details", lambda: error(self, "Some tweaks failed",
+                                                                   "These were left unchanged:", error_report(fails))))
         else:
-            self.main.toast(f"Done: {len(done)} tweak(s) updated")
+            self.main.notify("success", f"{len(done)} tweak{'s' if len(done) != 1 else ''} updated",
+                             "Untick any of them later to put the original setting back.")
         if "Restart Explorer" in restarts and confirm(self, "Restart Explorer",
                                                       "Some changes need Explorer to restart. Do it now? "
                                                       "(Your taskbar will flash briefly.)", "Restart Explorer"):
             tweaks.restart_explorer()
         others = restarts - {"Restart Explorer"}
         if others:
-            info(self, "Almost done", "Some changes take effect after: " + ", ".join(sorted(others)) + ".")
+            self.main.notify("info", "Almost done", "Some changes take effect after you "
+                             + " / ".join(o.lower() for o in sorted(others)) + ".")
 
 
 # =========================================================================== Services
@@ -415,7 +496,10 @@ class ServicesPage(BasePage):
 
     def refresh(self):
         self.run(lambda ctx: services.list_services(), progress=self.progress, text="Reading services…",
-                 cancellable=False, on_done=self._populate)
+                 cancellable=False, on_done=self._populate, summary=lambda items: f"{len(items)} services listed")
+
+    def refresh_action(self):
+        self.refresh()
 
     def _populate(self, items):
         self.tree.setSortingEnabled(False)
@@ -458,6 +542,7 @@ class ServicesPage(BasePage):
     def _control(self, action):
         sel = self._selected()
         if not sel:
+            self.main.notify("info", "Select a service first")
             return
         if action != "start" and not confirm(self, "Services", f"{action.capitalize()} {len(sel)} service(s)?",
                                              action.capitalize()):
@@ -482,8 +567,8 @@ class ServicesPage(BasePage):
 
         def work(ctx):
             errs = []
-            for s in sel:
-                ctx.progress(s["display"])
+            for i, s in enumerate(sel):
+                ctx.progress(f"{s['display']} ({i + 1} of {len(sel)})", int(i * 100 / max(1, len(sel))), force=True)
                 try:
                     fn(s)
                 except Exception as exc:  # noqa: BLE001
@@ -491,9 +576,14 @@ class ServicesPage(BasePage):
             return errs
 
         def done(errs):
+            ok = len(sel) - len(errs)
+            if ok:
+                self.main.notify("success", f"Updated {ok} service{'s' if ok != 1 else ''}")
             if errs:
-                error(self, "Some changes failed", "Most service changes need administrator rights.",
-                      error_report(errs))
+                self.main.notify("warning", f"{len(errs)} service change(s) failed",
+                                 "Most service changes need administrator rights.",
+                                 action=("Show details", lambda: error(self, "Some changes failed", "",
+                                                                       error_report(errs))))
             self.refresh()
 
         self.run(work, progress=self.progress, text="Applying…", cancellable=False, on_done=done)
@@ -619,10 +709,12 @@ class ProcessesPage(BasePage):
             return
         crit = [n for _p, n in sel if n.lower() in _CRITICAL]
         if crit:
-            error(self, "Blocked", "Ending these would crash Windows: " + ", ".join(crit))
+            self.main.notify("error", "Blocked to protect Windows", "Ending " + ", ".join(crit) +
+                             " would crash your PC.")
             return
-        if not confirm(self, "End process", f"End {', '.join(n for _p, n in sel[:5])}"
-                       f"{'…' if len(sel) > 5 else ''}? Unsaved work in those apps will be lost.", "End"):
+        if not confirm(self, f"End {len(sel)} process{'es' if len(sel) != 1 else ''}?",
+                       "Unsaved work in those apps will be lost.", "End now", danger=True,
+                       bullets=[n for _p, n in sel]):
             return
         errs = []
         for pid, name in sel:
@@ -653,7 +745,7 @@ class ProcessesPage(BasePage):
         if errs:
             error(self, "Could not change priority", "", error_report(errs))
         else:
-            self.main.toast("Priority updated")
+            self.main.notify("success", "Priority updated", "Lasts until the app is closed.")
 
     def _open(self):
         sel = self.tree.selectedItems()
